@@ -20,28 +20,15 @@
 package se.uu.ub.cora.indexmessenger;
 
 import se.uu.ub.cora.messaging.MessageListener;
-import se.uu.ub.cora.messaging.MessageRoutingInfo;
-import se.uu.ub.cora.messaging.MessageSender;
-import se.uu.ub.cora.messaging.MessagingFactory;
+import se.uu.ub.cora.messaging.MessageReceiver;
 
-public class MessagingFactorySpy implements MessagingFactory {
+public class MessageListenerSpy implements MessageListener {
 
-	public boolean factorTopicMessageListenerCalled = false;
-	public MessageRoutingInfo messagingRoutingInfo;
-	public MessageListenerSpy messageListenerSpy;
+	public MessageReceiver messageReceiver;
 
 	@Override
-	public MessageSender factorTopicMessageSender(MessageRoutingInfo messagingRoutingInfo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public MessageListener factorTopicMessageListener(MessageRoutingInfo messagingRoutingInfo) {
-		this.messagingRoutingInfo = messagingRoutingInfo;
-		factorTopicMessageListenerCalled = true;
-		messageListenerSpy = new MessageListenerSpy();
-		return messageListenerSpy;
+	public void listen(MessageReceiver messageReceiver) {
+		this.messageReceiver = messageReceiver;
 	}
 
 }

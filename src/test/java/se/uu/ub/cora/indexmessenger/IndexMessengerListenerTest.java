@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
 import se.uu.ub.cora.logger.LoggerProvider;
+import se.uu.ub.cora.messaging.MessageReceiver;
+import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
 public class IndexMessengerListenerTest {
@@ -40,8 +42,21 @@ public class IndexMessengerListenerTest {
 		MessagingFactorySpy messagingFactorySpy = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactorySpy);
 		assertEquals(messagingFactorySpy.factorTopicMessageListenerCalled, false);
+		String hostname = "";
+		String port = "";
+		String virtualHost = "";
+		String exchange = "";
+		String routingKey = "";
+		MessageRoutingInfo messagingRoutingInfo = new MessageRoutingInfo(hostname, port,
+				virtualHost, exchange, routingKey);
 
-		IndexMessengerListener iml = new IndexMessengerListener();
+		MessageReceiver messageReceiver = new MessageReceiverSpy();
+
+		IndexMessengerListener iml = new IndexMessengerListener(messagingRoutingInfo,
+				messageReceiver);
+
 		assertEquals(messagingFactorySpy.factorTopicMessageListenerCalled, true);
+		assertEquals(messagingFactorySpy.messagingRoutingInfo, messagingRoutingInfo);
+		assertEquals(messagingFactorySpy.messageListenerSpy.messageReceiver, messageReceiver);
 	}
 }

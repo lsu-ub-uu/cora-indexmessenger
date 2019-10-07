@@ -19,20 +19,6 @@
 
 package se.uu.ub.cora.indexmessenger;
 
-import se.uu.ub.cora.messaging.MessageListener;
-import se.uu.ub.cora.messaging.MessageReceiver;
-import se.uu.ub.cora.messaging.MessageRoutingInfo;
-import se.uu.ub.cora.messaging.MessagingProvider;
-
-public class IndexMessengerListener {
-	private MessageRoutingInfo messagingRoutingInfo;
-
-	public IndexMessengerListener(MessageRoutingInfo messagingRoutingInfo,
-			MessageReceiver messageReceiver) {
-		this.messagingRoutingInfo = messagingRoutingInfo;
-		MessageListener topicMessageListener = MessagingProvider
-				.getTopicMessageListener(messagingRoutingInfo);
-		topicMessageListener.listen(messageReceiver);
-	}
+public class IndexMessageReceiverTest {
 
 }
