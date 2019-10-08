@@ -16,7 +16,6 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.indexmessenger.log;
 
 import java.util.HashMap;
@@ -27,17 +26,6 @@ import se.uu.ub.cora.logger.Logger;
 import se.uu.ub.cora.logger.LoggerFactory;
 
 public class LoggerFactorySpy implements LoggerFactory {
-	private static LoggerFactorySpy instance;
-
-	private LoggerFactorySpy() {
-	}
-
-	public static LoggerFactorySpy getInstance() {
-		if (null == instance) {
-			instance = new LoggerFactorySpy();
-		}
-		return instance;
-	}
 
 	public Map<String, LoggerSpy> createdLoggers = new HashMap<>();
 
@@ -48,19 +36,9 @@ public class LoggerFactorySpy implements LoggerFactory {
 		return createdLoggers.get(name);
 	}
 
-	public int getNoOfFatalLogMessagesUsingClassName(String className) {
-		List<String> fatalMessages = (createdLoggers.get(className)).fatalMessages;
-		return fatalMessages.size();
-	}
-
 	public String getFatalLogMessageUsingClassNameAndNo(String className, int messageNo) {
 		List<String> fatalMessages = (createdLoggers.get(className)).fatalMessages;
 		return fatalMessages.get(messageNo);
-	}
-
-	public int getNoOfInfoLogMessagesUsingClassName(String className) {
-		List<String> infoMessages = (createdLoggers.get(className)).infoMessages;
-		return infoMessages.size();
 	}
 
 	public String getInfoLogMessageUsingClassNameAndNo(String className, int messageNo) {
@@ -68,11 +46,17 @@ public class LoggerFactorySpy implements LoggerFactory {
 		return infoMessages.get(messageNo);
 	}
 
-	public void resetLogs(String testedClassName) {
-		if (createdLoggers.containsKey(testedClassName)) {
-			LoggerSpy loggerSpy = createdLoggers.get(testedClassName);
-			loggerSpy.resetLogs();
-		}
+	public String getErrorLogMessageUsingClassNameAndNo(String className, int messageNo) {
+		List<String> errorMessages = (createdLoggers.get(className)).errorMessages;
+		return errorMessages.get(messageNo);
+	}
+
+	public int getNoOfInfoLogMessagesUsingClassName(String testedClassName) {
+		return ((createdLoggers.get(testedClassName)).infoMessages).size();
+	}
+
+	public Object getNoOfFatalLogMessagesUsingClassName(String testedClassName) {
+		return ((createdLoggers.get(testedClassName)).fatalMessages).size();
 	}
 
 }

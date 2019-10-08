@@ -28,7 +28,9 @@ import se.uu.ub.cora.logger.Logger;
 public class LoggerSpy implements Logger {
 
 	public List<String> fatalMessages = new ArrayList<>();
+	public List<String> errorMessages = new ArrayList<>();
 	public List<String> infoMessages = new ArrayList<>();
+	public List<Exception> errorExceptions = new ArrayList<>();
 
 	@Override
 	public void logFatalUsingMessage(String message) {
@@ -43,14 +45,13 @@ public class LoggerSpy implements Logger {
 
 	@Override
 	public void logErrorUsingMessage(String message) {
-		// TODO Auto-generated method stub
-
+		errorMessages.add(message);
 	}
 
 	@Override
 	public void logErrorUsingMessageAndException(String message, Exception exception) {
-		// TODO Auto-generated method stub
-
+		errorMessages.add(message);
+		errorExceptions.add(exception);
 	}
 
 	@Override
@@ -92,11 +93,6 @@ public class LoggerSpy implements Logger {
 	public void logTraceUsingMessageSupplier(Supplier<String> messageSupplier) {
 		// TODO Auto-generated method stub
 
-	}
-
-	public void resetLogs() {
-		fatalMessages = new ArrayList<>();
-		infoMessages = new ArrayList<>();
 	}
 
 }

@@ -35,8 +35,10 @@ public class IndexMessengerListenerTest {
 
 	@Test
 	public void testInit() throws Exception {
-		loggerFactorySpy = LoggerFactorySpy.getInstance();
-		loggerFactorySpy.resetLogs(testedClassName);
+		// loggerFactorySpy = LoggerFactorySpy.getInstance();
+		// loggerFactorySpy.resetLogs(testedClassName);
+		// LoggerProvider.setLoggerFactory(loggerFactorySpy);
+		loggerFactorySpy = new LoggerFactorySpy();
 		LoggerProvider.setLoggerFactory(loggerFactorySpy);
 
 		MessagingFactorySpy messagingFactorySpy = new MessagingFactorySpy();

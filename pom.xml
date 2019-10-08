@@ -28,6 +28,7 @@
 	<properties>
 		<logger.version>1.0.0</logger.version>
 		<messaging.version>1.1-SNAPSHOT</messaging.version>
+		<javaclient.version>1.0-SNAPSHOT</javaclient.version>
 	</properties>
 
 	<scm>
@@ -54,6 +55,11 @@
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>messaging</artifactId>
 			<version>${messaging.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>javaclient</artifactId>
+			<version>${javaclient.version}</version>
 		</dependency>
 	</dependencies>
 </project>
