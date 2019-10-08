@@ -16,31 +16,26 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.indexmessenger;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import java.util.Map;
 
 import se.uu.ub.cora.messaging.MessageReceiver;
 
-public class IndexMessageReceiverTest {
+public class IndexMessageReceiver implements MessageReceiver {
 
-	@BeforeMethod
-	public void setUp() {
-		// Map<String, Object> headers = new HashMap<>();
-		// headers.put("__TypeId__", "epc.messaging.amqp.EPCFedoraMessage");
-		// headers.put("ACTION", "UPDATE");
-		// headers.put("PID", "alvin-place:1");
-		// headers.put("messageSentFrom", "Cora");
+	@Override
+	public void receiveMessage(Map<String, Object> headers, String message) {
+		// TODO: vad krävs i headers och message för att vi ska göra ngt?
+		// kasta exceptions om något saknas??
 
-		// String message = "{\"pid\":\"alvin-place:1\",\"routingKey\":\"alvin.updates.place\","
-		// + "\"action\":\"UPDATE\",\"dsId\":null,"
-		// + "\"headers\":{\"ACTION\":\"UPDATE\",\"PID\":\"alvin-place:1\"}}";
+		// TODO: skapa en workorder?
+		// create type: workOrder
+		// {"name":"workOrder","children":[{"name":"recordType","children":
+		// [{"name":"linkedRecordType","value":"recordType"},
+		// {"name":"linkedRecordId","value":"place"}]},
+		// {"name":"recordId","value":"alvin-place:1"},{"name":"type","value":"index"}]}
+
 	}
 
-	@Test
-	public void testInit() {
-		MessageReceiver receiver = new IndexMessageReceiver();
-	}
 }
