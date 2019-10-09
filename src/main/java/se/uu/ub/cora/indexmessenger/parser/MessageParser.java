@@ -25,4 +25,10 @@ public interface MessageParser {
 
 	void parseHeadersAndMessage(Map<String, Object> headers, String message);
 
+	String getParsedId();
+
+	String getParsedType();
+
+	boolean shouldWorkOrderBeCreatedForMessage();
+
 }

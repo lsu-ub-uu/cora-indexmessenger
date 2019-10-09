@@ -16,41 +16,21 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
+package se.uu.ub.cora.indexmessenger;
 
-package se.uu.ub.cora.indexmessenger.parser;
+import se.uu.ub.cora.indexmessenger.parser.MessageParser;
+import se.uu.ub.cora.indexmessenger.parser.MessageParserSpy;
 
-import java.util.Map;
-
-public class MessageParserSpy implements MessageParser {
-
-	public Map<String, Object> headers;
-	public String message;
-	public boolean getParsedIdWasCalled = false;
-	public boolean getParsedTypeWasCalled = false;
+public class MessageParserFactorySpy implements MessageParserFactory {
+	boolean factorWasCalled = false;
 	public boolean createWorkOrder = true;
+	public MessageParserSpy messageParserSpy;
 
 	@Override
-	public void parseHeadersAndMessage(Map<String, Object> headers, String message) {
-		this.headers = headers;
-		this.message = message;
-
+	public MessageParser factor() {
+		factorWasCalled = true;
+		messageParserSpy = new MessageParserSpy();
+		messageParserSpy.createWorkOrder = createWorkOrder;
+		return messageParserSpy;
 	}
-
-	@Override
-	public String getParsedId() {
-		getParsedIdWasCalled = true;
-		return "someParsedIdFromMessageParserSpy";
-	}
-
-	@Override
-	public String getParsedType() {
-		getParsedTypeWasCalled = true;
-		return "someParsedTypeFromMessageParserSpy";
-	}
-
-	@Override
-	public boolean shouldWorkOrderBeCreatedForMessage() {
-		return createWorkOrder;
-	}
-
 }

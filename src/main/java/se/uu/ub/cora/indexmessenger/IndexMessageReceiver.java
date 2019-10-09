@@ -18,74 +18,85 @@
  */
 package se.uu.ub.cora.indexmessenger;
 
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
+import se.uu.ub.cora.logger.Logger;
+import se.uu.ub.cora.logger.LoggerProvider;
 import se.uu.ub.cora.messaging.MessageReceiver;
 
 public class IndexMessageReceiver implements MessageReceiver {
 
+	private static final String RECORD_TYPE = "recordType";
+	private static final String RECORD_ID = "recordId";
+	private Logger logger = LoggerProvider.getLoggerForClass(IndexMessageReceiver.class);
 	private CoraClient coraClient;
 	private MessageParser messageParser;
+	private MessageParserFactory messageParserFactory;
 
-	public IndexMessageReceiver(CoraClient coraClient, MessageParser messageParser) {
+	public IndexMessageReceiver(CoraClient coraClient, MessageParserFactory messageParserFactory) {
 		this.coraClient = coraClient;
-		this.messageParser = messageParser;
+		this.messageParserFactory = messageParserFactory;
+
 	}
 
 	@Override
 	public void receiveMessage(Map<String, Object> headers, String message) {
-
-		// TODO: vad krävs i headers och message för att vi ska göra ngt?
-		// kasta exceptions om något saknas??
-		// TODO: skapa en workorder?
-		// create type: workOrder
-		// {"name":"workOrder","children":[{"name":"recordType","children":
-		// [{"name":"linkedRecordType","value":"recordType"},
-		// {"name":"linkedRecordId","value":"place"}]},
-		// {"name":"recordId","value":"alvin-place:1"},{"name":"type","value":"index"}]}
-
-		// WorkOrderCreator workOrderCreator = WorkOrderCreatorProvider.getWorkOrderCreator();
-		// ClientDataGroup workOrder = workOrderCreator.createWorkOrder(workOrderCreator, message);
-
+		messageParser = messageParserFactory.factor();
 		messageParser.parseHeadersAndMessage(headers, message);
-		String recordId = (String) headers.get("PID");
-
-		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
-		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "index"));
-		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("recordId", recordId));
-
-		String recordTypeId = extractRecordTypeIdFromMessage(message);
-
-		ClientDataGroup recordTypeGroup = ClientDataGroup
-				.asLinkWithNameInDataAndTypeAndId("recordType", "recordType", recordTypeId);
-		workOrder.addChild(recordTypeGroup);
-
-		coraClient.create("workOrder", workOrder);
+		if (messageParser.shouldWorkOrderBeCreatedForMessage()) {
+			createWorkOrder();
+		}
 	}
 
-	private String extractRecordTypeIdFromMessage(String message) {
-		String recordTypeId = "";
-		String pattern = "\"alvin\\.updates\\.(\\S*?)\"";
+	private void createWorkOrder() {
+		Map<String, String> logValues = new HashMap<>();
+		ClientDataGroup workOrder = createWorkOrderDataGroup(logValues);
+		coraClient.create("workOrder", workOrder);
+		writeLogMessage(logValues);
+	}
 
-		// Create a Pattern object
-		Pattern r = Pattern.compile(pattern);
+	private ClientDataGroup createWorkOrderDataGroup(Map<String, String> logValues) {
+		ClientDataGroup workOrder = createIndexWorkOrder();
+		addRecordType(workOrder, logValues);
+		addRecordId(workOrder, logValues);
+		return workOrder;
+	}
 
-		// Now create matcher object.
-		Matcher m = r.matcher(message);
-		if (m.find()) {
-			recordTypeId = m.group(1);
-			// System.out.println("Found value: " + m.group(0));
-			// System.out.println("Found value: " + m.group(1));
-		} else {
-			System.out.println("NO MATCH");
-		}
-		return recordTypeId;
+	private ClientDataGroup createIndexWorkOrder() {
+		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "index"));
+		return workOrder;
+	}
+
+	private void addRecordId(ClientDataGroup workOrder, Map<String, String> logValues) {
+		String parsedId = messageParser.getParsedId();
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue(RECORD_ID, parsedId));
+		logValues.put(RECORD_ID, parsedId);
+	}
+
+	private void addRecordType(ClientDataGroup workOrder, Map<String, String> logValues) {
+		String parsedType = messageParser.getParsedType();
+		ClientDataGroup recordTypeGroup = ClientDataGroup
+				.asLinkWithNameInDataAndTypeAndId(RECORD_TYPE, RECORD_TYPE, parsedType);
+		workOrder.addChild(recordTypeGroup);
+		logValues.put(RECORD_TYPE, parsedType);
+	}
+
+	private void writeLogMessage(Map<String, String> logValues) {
+		String logM = "Index workOrder created for type: {0} and id: {1}";
+		logger.logInfoUsingMessage(
+				MessageFormat.format(logM, logValues.get(RECORD_TYPE), logValues.get(RECORD_ID)));
+	}
+
+	@Override
+	public void topicClosed() {
+		logger.logFatalUsingMessage("Topic closed!");
 	}
 
 }

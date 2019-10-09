@@ -20,6 +20,7 @@
 package se.uu.ub.cora.indexmessenger;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
@@ -43,7 +44,7 @@ public class IndexMessageReceiverTest {
 
 	private LoggerFactorySpy loggerFactory;
 	private String testedClassname = "IndexMessageReceiver";
-	private MessageParserSpy messageParserSpy;
+	private MessageParserFactorySpy messageParserFactorySpy;
 
 	@BeforeMethod
 	public void setUp() {
@@ -60,8 +61,14 @@ public class IndexMessageReceiverTest {
 				+ "\"action\":\"UPDATE\",\"dsId\":null,"
 				+ "\"headers\":{\"ACTION\":\"UPDATE\",\"PID\":\"alvin-place:1\"}}";
 		coraClientSpy = new CoraClientSpy();
-		messageParserSpy = new MessageParserSpy();
-		receiver = new IndexMessageReceiver(coraClientSpy, messageParserSpy);
+		messageParserFactorySpy = new MessageParserFactorySpy();
+		receiver = new IndexMessageReceiver(coraClientSpy, messageParserFactorySpy);
+	}
+
+	@Test
+	public void testMessageParserWasFactored() {
+		receiver.receiveMessage(headers, message);
+		assertTrue(messageParserFactorySpy.factorWasCalled);
 	}
 
 	@Test
@@ -75,6 +82,7 @@ public class IndexMessageReceiverTest {
 	@Test
 	public void testReceiveMessageUsesMessageParserToGetTypeAndId() throws Exception {
 		receiver.receiveMessage(headers, message);
+		MessageParserSpy messageParserSpy = messageParserFactorySpy.messageParserSpy;
 		assertSame(messageParserSpy.headers, headers);
 		assertSame(messageParserSpy.message, message);
 	}
@@ -82,62 +90,75 @@ public class IndexMessageReceiverTest {
 	@Test
 	public void testReceiveMessageUsesParserToGetId() throws Exception {
 		receiver.receiveMessage(headers, message);
+		MessageParserSpy messageParserSpy = messageParserFactorySpy.messageParserSpy;
+		assertTrue(messageParserSpy.getParsedIdWasCalled);
 
+		ClientDataGroup createdDataGroup = coraClientSpy.createdDataGroup;
+		String recordIdFromWorkOrder = createdDataGroup
+				.getFirstAtomicValueWithNameInData("recordId");
+		assertEquals(recordIdFromWorkOrder, messageParserSpy.getParsedId());
 	}
 
 	@Test
-	public void testReceiveMessageUsesCorrectRecordTypeAndId() throws Exception {
+	public void testReceiveMessageUsesParserToGetType() throws Exception {
 		receiver.receiveMessage(headers, message);
 
-		ClientDataGroup createdDataGroup = coraClientSpy.createdDataGroup;
-		assertCorrectNameInDataAndTypeForIndexOrder(createdDataGroup);
-		assertCorrectRecordId(createdDataGroup, "alvin-place:1");
-		assertCorrectLinkedRecordType(createdDataGroup, "place");
-	}
-
-	@Test
-	public void testReceiveMessageUsesCorrectPersonRecordTypeAndId() throws Exception {
-		headers.put("PID", "alvin-person:2");
-		message = "{\"pid\":\"alvin-person:2\",\"routingKey\":\"alvin.updates.person\","
-				+ "\"action\":\"UPDATE\",\"dsId\":null,"
-				+ "\"headers\":{\"ACTION\":\"UPDATE\",\"PID\":\"alvin-person:2\"}}";
-
-		receiver.receiveMessage(headers, message);
+		MessageParserSpy messageParserSpy = messageParserFactorySpy.messageParserSpy;
+		assertTrue(messageParserSpy.getParsedTypeWasCalled);
 
 		ClientDataGroup createdDataGroup = coraClientSpy.createdDataGroup;
-		assertCorrectNameInDataAndTypeForIndexOrder(createdDataGroup);
-		assertCorrectRecordId(createdDataGroup, "alvin-person:2");
-		assertCorrectLinkedRecordType(createdDataGroup, "person");
-	}
-
-	// @Test(expectedExceptions = IndexMessageException.class)
-	// public void testLoggingErrorNoPidInHeader() throws Exception {
-	// headers.remove("PID");
-	//
-	// receiver.receiveMessage(headers, message);
-	// }
-
-	// TODO: do not send index order for message from cora (messageSentFromCora).
-
-	private void assertCorrectNameInDataAndTypeForIndexOrder(ClientDataGroup createdDataGroup) {
-		assertEquals(createdDataGroup.getNameInData(), "workOrder");
-		String type = createdDataGroup.getFirstAtomicValueWithNameInData("type");
-		assertEquals(type, "index");
-	}
-
-	private void assertCorrectRecordId(ClientDataGroup createdDataGroup, String expectedRecordId) {
-		String recordId = createdDataGroup.getFirstAtomicValueWithNameInData("recordId");
-		assertEquals(recordId, expectedRecordId);
-	}
-
-	private void assertCorrectLinkedRecordType(ClientDataGroup createdDataGroup,
-			String recordType) {
 		ClientDataGroup recordTypeGroup = createdDataGroup
 				.getFirstGroupWithNameInData("recordType");
-		String linkedRecordType = recordTypeGroup
-				.getFirstAtomicValueWithNameInData("linkedRecordType");
-		assertEquals(linkedRecordType, "recordType");
-		String linkedRecordId = recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordId");
-		assertEquals(linkedRecordId, recordType);
+		String recordTypeFromWorkOrder = recordTypeGroup
+				.getFirstAtomicValueWithNameInData("linkedRecordId");
+		assertEquals(recordTypeFromWorkOrder, messageParserSpy.getParsedType());
 	}
+
+	@Test
+	public void testNOWorkOrderCreatedWhenParserReturnsFalse() throws Exception {
+		messageParserFactorySpy.createWorkOrder = false;
+
+		receiver.receiveMessage(headers, message);
+
+		assertFalse(coraClientSpy.createWasCalled);
+	}
+
+	@Test
+	public void testLogInfoWhenWorkOrderCreated() throws Exception {
+		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassName(testedClassname), 0);
+
+		receiver.receiveMessage(headers, message);
+
+		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassName(testedClassname), 1);
+	}
+
+	@Test
+	public void testLogInfoWhenWorkOrderCreatedCorrectMessage() throws Exception {
+		receiver.receiveMessage(headers, message);
+
+		String firstInfoLogMessage = loggerFactory
+				.getInfoLogMessageUsingClassNameAndNo(testedClassname, 0);
+		assertEquals(firstInfoLogMessage,
+				"Index workOrder created for type: someParsedTypeFromMessageParserSpy "
+						+ "and id: someParsedIdFromMessageParserSpy");
+	}
+
+	@Test
+	public void testLogFatalWhenTopicGetsClosed() throws Exception {
+		assertEquals(loggerFactory.getNoOfFatalLogMessagesUsingClassName(testedClassname), 0);
+
+		receiver.topicClosed();
+
+		assertEquals(loggerFactory.getNoOfFatalLogMessagesUsingClassName(testedClassname), 1);
+	}
+
+	@Test
+	public void testLogFatalWhenTopicGetsClosedCorrectMessage() throws Exception {
+		receiver.topicClosed();
+
+		String firstFatalLogMessage = loggerFactory
+				.getFatalLogMessageUsingClassNameAndNo(testedClassname, 0);
+		assertEquals(firstFatalLogMessage, "Topic closed!");
+	}
+
 }

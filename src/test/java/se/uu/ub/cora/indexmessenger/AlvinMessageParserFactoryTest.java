@@ -16,25 +16,32 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.indexmessenger;
 
-import java.util.Map;
+import static org.testng.Assert.assertTrue;
 
-import se.uu.ub.cora.messaging.MessageReceiver;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-public class MessageReceiverSpy implements MessageReceiver {
+import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
+import se.uu.ub.cora.indexmessenger.parser.MessageParser;
+import se.uu.ub.cora.logger.LoggerProvider;
 
-	@Override
-	public void receiveMessage(Map<String, Object> headers, String message) {
-		// TODO Auto-generated method stub
+public class AlvinMessageParserFactoryTest {
 
+	private LoggerFactorySpy loggerFactory;
+
+	@BeforeMethod
+	public void setUp() {
+		loggerFactory = new LoggerFactorySpy();
+		LoggerProvider.setLoggerFactory(loggerFactory);
 	}
 
-	@Override
-	public void topicClosed() {
-		// TODO Auto-generated method stub
-
+	@Test
+	public void testFactor() {
+		MessageParserFactory factory = new AlvinMessageParserFactory();
+		MessageParser messageParser = factory.factor();
+		assertTrue(messageParser instanceof AlvinMessageParser);
 	}
 
 }

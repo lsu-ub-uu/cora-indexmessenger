@@ -59,4 +59,8 @@ public class LoggerFactorySpy implements LoggerFactory {
 		return ((createdLoggers.get(testedClassName)).fatalMessages).size();
 	}
 
+	public Object getNoOfErrorLogMessagesUsingClassName(String testedClassName) {
+		return ((createdLoggers.get(testedClassName)).errorMessages).size();
+	}
+
 }

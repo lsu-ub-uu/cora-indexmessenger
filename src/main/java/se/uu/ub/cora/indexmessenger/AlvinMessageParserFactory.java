@@ -16,25 +16,15 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.indexmessenger;
 
-import java.util.Map;
+import se.uu.ub.cora.indexmessenger.parser.MessageParser;
 
-import se.uu.ub.cora.messaging.MessageReceiver;
-
-public class MessageReceiverSpy implements MessageReceiver {
+public class AlvinMessageParserFactory implements MessageParserFactory {
 
 	@Override
-	public void receiveMessage(Map<String, Object> headers, String message) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void topicClosed() {
-		// TODO Auto-generated method stub
-
+	public MessageParser factor() {
+		return new AlvinMessageParser();
 	}
 
 }
