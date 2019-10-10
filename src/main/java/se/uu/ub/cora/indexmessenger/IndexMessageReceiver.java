@@ -36,35 +36,34 @@ public class IndexMessageReceiver implements MessageReceiver {
 	private static final String RECORD_ID = "recordId";
 	private Logger logger = LoggerProvider.getLoggerForClass(IndexMessageReceiver.class);
 	private CoraClient coraClient;
-	private MessageParser messageParser;
 	private MessageParserFactory messageParserFactory;
 
 	public IndexMessageReceiver(CoraClient coraClient, MessageParserFactory messageParserFactory) {
 		this.coraClient = coraClient;
 		this.messageParserFactory = messageParserFactory;
-
 	}
 
 	@Override
 	public void receiveMessage(Map<String, Object> headers, String message) {
-		messageParser = messageParserFactory.factor();
+		MessageParser messageParser = messageParserFactory.factor();
 		messageParser.parseHeadersAndMessage(headers, message);
 		if (messageParser.shouldWorkOrderBeCreatedForMessage()) {
-			createWorkOrder();
+			createWorkOrder(messageParser);
 		}
 	}
 
-	private void createWorkOrder() {
+	private void createWorkOrder(MessageParser messageParser) {
 		Map<String, String> logValues = new HashMap<>();
-		ClientDataGroup workOrder = createWorkOrderDataGroup(logValues);
+		ClientDataGroup workOrder = createWorkOrderDataGroup(messageParser, logValues);
 		coraClient.create("workOrder", workOrder);
 		writeLogMessage(logValues);
 	}
 
-	private ClientDataGroup createWorkOrderDataGroup(Map<String, String> logValues) {
+	private ClientDataGroup createWorkOrderDataGroup(MessageParser messageParser,
+			Map<String, String> logValues) {
 		ClientDataGroup workOrder = createIndexWorkOrder();
-		addRecordType(workOrder, logValues);
-		addRecordId(workOrder, logValues);
+		addRecordType(messageParser, workOrder, logValues);
+		addRecordId(messageParser, workOrder, logValues);
 		return workOrder;
 	}
 
@@ -74,13 +73,15 @@ public class IndexMessageReceiver implements MessageReceiver {
 		return workOrder;
 	}
 
-	private void addRecordId(ClientDataGroup workOrder, Map<String, String> logValues) {
+	private void addRecordId(MessageParser messageParser, ClientDataGroup workOrder,
+			Map<String, String> logValues) {
 		String parsedId = messageParser.getParsedId();
 		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue(RECORD_ID, parsedId));
 		logValues.put(RECORD_ID, parsedId);
 	}
 
-	private void addRecordType(ClientDataGroup workOrder, Map<String, String> logValues) {
+	private void addRecordType(MessageParser messageParser, ClientDataGroup workOrder,
+			Map<String, String> logValues) {
 		String parsedType = messageParser.getParsedType();
 		ClientDataGroup recordTypeGroup = ClientDataGroup
 				.asLinkWithNameInDataAndTypeAndId(RECORD_TYPE, RECORD_TYPE, parsedType);
@@ -97,6 +98,11 @@ public class IndexMessageReceiver implements MessageReceiver {
 	@Override
 	public void topicClosed() {
 		logger.logFatalUsingMessage("Topic closed!");
+	}
+
+	public CoraClient getCoraClient() {
+		// needed for test
+		return coraClient;
 	}
 
 }

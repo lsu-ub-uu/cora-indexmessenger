@@ -16,23 +16,24 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.indexmessenger;
 
 import se.uu.ub.cora.messaging.MessageListener;
-import se.uu.ub.cora.messaging.MessageReceiver;
 import se.uu.ub.cora.messaging.MessageRoutingInfo;
-import se.uu.ub.cora.messaging.MessagingProvider;
+import se.uu.ub.cora.messaging.MessageSender;
+import se.uu.ub.cora.messaging.MessagingFactory;
 
-public class IndexMessengerListener {
-	private MessageRoutingInfo messagingRoutingInfo;
+public class MessagingFactoryErrorThrowingSpy implements MessagingFactory {
 
-	public IndexMessengerListener(MessageRoutingInfo messagingRoutingInfo,
-			MessageReceiver messageReceiver) {
-		this.messagingRoutingInfo = messagingRoutingInfo;
-		MessageListener topicMessageListener = MessagingProvider
-				.getTopicMessageListener(messagingRoutingInfo);
-		topicMessageListener.listen(messageReceiver);
+	@Override
+	public MessageSender factorTopicMessageSender(MessageRoutingInfo messagingRoutingInfo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MessageListener factorTopicMessageListener(MessageRoutingInfo messagingRoutingInfo) {
+		throw new RuntimeException("Error from MessagingFactoryErrorThrowingSpy");
 	}
 
 }

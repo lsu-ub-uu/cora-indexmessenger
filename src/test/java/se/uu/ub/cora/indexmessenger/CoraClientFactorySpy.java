@@ -18,20 +18,23 @@
  */
 package se.uu.ub.cora.indexmessenger;
 
-import se.uu.ub.cora.indexmessenger.parser.MessageParser;
-import se.uu.ub.cora.indexmessenger.parser.MessageParserSpy;
+import se.uu.ub.cora.javaclient.cora.CoraClient;
+import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
 
-public class MessageParserFactorySpy implements MessageParserFactory {
-	boolean factorWasCalled = false;
-	public boolean createWorkOrder = true;
-	public MessageParserSpy messageParserSpy;
+public class CoraClientFactorySpy implements CoraClientFactory {
+
+	public CoraClientSpy factoredClient;
+	public String userId;
+	public String appToken;
+	public boolean factoredHasBeenCalled = false;
 
 	@Override
-	public MessageParser factor() {
-		factorWasCalled = true;
-		messageParserSpy = new MessageParserSpy();
-		messageParserSpy.createWorkOrder = createWorkOrder;
-		return messageParserSpy;
+	public CoraClient factor(String userId, String appToken) {
+		factoredHasBeenCalled = true;
+		this.userId = userId;
+		this.appToken = appToken;
+		factoredClient = new CoraClientSpy();
+		return factoredClient;
 	}
 
 }

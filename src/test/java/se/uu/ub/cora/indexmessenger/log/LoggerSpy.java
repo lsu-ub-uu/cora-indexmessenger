@@ -31,6 +31,7 @@ public class LoggerSpy implements Logger {
 	public List<String> errorMessages = new ArrayList<>();
 	public List<String> infoMessages = new ArrayList<>();
 	public List<Exception> errorExceptions = new ArrayList<>();
+	public List<Exception> fatalExceptions = new ArrayList<>();
 
 	@Override
 	public void logFatalUsingMessage(String message) {
@@ -39,7 +40,8 @@ public class LoggerSpy implements Logger {
 
 	@Override
 	public void logFatalUsingMessageAndException(String message, Exception exception) {
-		// TODO Auto-generated method stub
+		fatalMessages.add(message);
+		fatalExceptions.add(exception);
 
 	}
 
