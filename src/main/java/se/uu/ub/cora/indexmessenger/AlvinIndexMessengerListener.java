@@ -21,12 +21,14 @@ package se.uu.ub.cora.indexmessenger;
 
 import java.util.Properties;
 
+import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
 import se.uu.ub.cora.logger.Logger;
 import se.uu.ub.cora.logger.LoggerProvider;
 import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageListener;
 import se.uu.ub.cora.messaging.MessageReceiver;
+import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
 public class AlvinIndexMessengerListener {
@@ -34,26 +36,31 @@ public class AlvinIndexMessengerListener {
 	private Logger logger = LoggerProvider.getLoggerForClass(AlvinIndexMessengerListener.class);
 
 	// routingInfo, coraClientFactory, messageParserFactory
-	public AlvinIndexMessengerListener(CoraClientFactory coraClientFactory, Properties properties) {
+	public AlvinIndexMessengerListener(CoraClientFactory coraClientFactory,
+			MessageParserFactory messageParserFactory, Properties properties) {
 		// try (InputStream input = AlvinIndexMessengerListener.class.getClassLoader()
 		// .getResourceAsStream("alvinIndexer.properties")) {
 		// Properties prop = new Properties();
 		// prop.load(input);
 
-		String appTokenVerifierUrl = "";
-		String baseUrl = "";
+		// String appTokenVerifierUrl = "";
+		// String baseUrl = "";
 		// CoraClientFactoryImp coraClientFactory = CoraClientFactoryImp
 		// .usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl, baseUrl);
 
 		// x.createListener(CoraClientFactory, new AlvinMessageParserFactory());
 
-		AmqpMessageRoutingInfo routingInfo = createMessageRoutingInfo(properties);
+		MessageRoutingInfo routingInfo = createMessageRoutingInfo(properties);
 		MessageListener topicMessageListener = MessagingProvider
 				.getTopicMessageListener(routingInfo);
 
-		// CoraClient coraClient = coraClientFactory.factor("", "");
-		// MessageReceiver messageReceiver = new IndexMessageReceiver(coraClient, null);
-		MessageReceiver messageReceiver = new IndexMessageReceiver(null, null);
+		String coraUserId = properties.getProperty("cora.userId");
+		String coraAppToken = properties.getProperty("cora.appToken");
+		CoraClient coraClient = coraClientFactory.factor(coraUserId, coraAppToken);
+
+		MessageReceiver messageReceiver = new IndexMessageReceiver(coraClient,
+				messageParserFactory);
+
 		topicMessageListener.listen(messageReceiver);
 
 		// } catch (Exception ex) {
