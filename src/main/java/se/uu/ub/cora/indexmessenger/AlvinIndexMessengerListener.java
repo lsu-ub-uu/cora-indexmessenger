@@ -19,67 +19,45 @@
 
 package se.uu.ub.cora.indexmessenger;
 
-import java.util.Properties;
-
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
-import se.uu.ub.cora.logger.Logger;
-import se.uu.ub.cora.logger.LoggerProvider;
-import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageListener;
 import se.uu.ub.cora.messaging.MessageReceiver;
 import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
 public class AlvinIndexMessengerListener {
-	// private MessageRoutingInfo messagingRoutingInfo;
-	private Logger logger = LoggerProvider.getLoggerForClass(AlvinIndexMessengerListener.class);
+	// private Logger logger = LoggerProvider.getLoggerForClass(AlvinIndexMessengerListener.class);
 	private CoraClientFactory coraClientFactory;
 	private MessageParserFactory messageParserFactory;
+	private MessageRoutingInfo routingInfo;
+	private CoraCredentials credentials;
 
-	// routingInfo, coraClientFactory, messageParserFactory
 	public AlvinIndexMessengerListener(CoraClientFactory coraClientFactory,
-			MessageParserFactory messageParserFactory, Properties properties) {
-		// try (InputStream input = AlvinIndexMessengerListener.class.getClassLoader()
-		// .getResourceAsStream("alvinIndexer.properties")) {
-		// Properties prop = new Properties();
-		// prop.load(input);
-
-		// String appTokenVerifierUrl = "";
-		// String baseUrl = "";
-		// CoraClientFactoryImp coraClientFactory = CoraClientFactoryImp
-		// .usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl, baseUrl);
-
-		// x.createListener(CoraClientFactory, new AlvinMessageParserFactory());
+			MessageParserFactory messageParserFactory, MessageRoutingInfo routingInfo,
+			CoraCredentials credentials) {
 
 		this.coraClientFactory = coraClientFactory;
 		this.messageParserFactory = messageParserFactory;
-		MessageRoutingInfo routingInfo = createMessageRoutingInfo(properties);
+		this.routingInfo = routingInfo;
+		this.credentials = credentials;
+
 		MessageListener topicMessageListener = MessagingProvider
 				.getTopicMessageListener(routingInfo);
 
-		String coraUserId = properties.getProperty("cora.userId");
-		String coraAppToken = properties.getProperty("cora.appToken");
-		CoraClient coraClient = coraClientFactory.factor(coraUserId, coraAppToken);
+		CoraClient coraClient = createCoraClient(coraClientFactory, credentials);
 
 		MessageReceiver messageReceiver = new IndexMessageReceiver(coraClient,
 				messageParserFactory);
 
 		topicMessageListener.listen(messageReceiver);
-
-		// } catch (Exception ex) {
-		// logger.logFatalUsingMessageAndException(
-		// "Error during initializing of AlvinIndexMessengerListener", ex);
-		// }
 	}
 
-	private AmqpMessageRoutingInfo createMessageRoutingInfo(Properties prop) {
-		String hostname = prop.getProperty("messaging.hostname");
-		String port = prop.getProperty("messaging.port");
-		String virtualHost = prop.getProperty("messaging.virtualHost");
-		String exchange = prop.getProperty("messaging.exchange");
-		String routingKey = prop.getProperty("messaging.routingKey");
-		return new AmqpMessageRoutingInfo(hostname, port, virtualHost, exchange, routingKey);
+	private CoraClient createCoraClient(CoraClientFactory coraClientFactory,
+			CoraCredentials credentials) {
+		String coraUserId = credentials.userId;
+		String coraAppToken = credentials.appToken;
+		return coraClientFactory.factor(coraUserId, coraAppToken);
 	}
 
 	public CoraClientFactory getCoraClientFactory() {
@@ -91,16 +69,13 @@ public class AlvinIndexMessengerListener {
 		// needed for test
 		return messageParserFactory;
 	}
+
+	public MessageRoutingInfo getMessageRoutingInfo() {
+		// needed for test
+		return routingInfo;
+	}
+
+	CoraCredentials getCredentials() {
+		return credentials;
+	}
 }
-// hostname
-// port
-// virtualHost
-// exchange
-// routingKey
-
-// vilken factory MessageParserFactory
-
-// appTokenVerifierUrl
-// baseUrl
-// userId
-// appToken

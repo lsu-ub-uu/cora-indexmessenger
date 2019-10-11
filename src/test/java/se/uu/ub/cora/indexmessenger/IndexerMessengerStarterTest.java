@@ -19,18 +19,30 @@
 package se.uu.ub.cora.indexmessenger;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
+import se.uu.ub.cora.indexmessenger.log.LoggerSpy;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactoryImp;
 import se.uu.ub.cora.logger.LoggerProvider;
+import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
 public class IndexerMessengerStarterTest {
@@ -38,6 +50,7 @@ public class IndexerMessengerStarterTest {
 	private LoggerFactorySpy loggerFactorySpy;
 	private MessagingFactorySpy messagingFactorySpy;
 	private String testedClassName = "IndexerMessengerStarter";
+	Map<String, String> defaultProperties = new HashMap<>();
 
 	@BeforeMethod
 	public void setUp() {
@@ -45,12 +58,23 @@ public class IndexerMessengerStarterTest {
 		LoggerProvider.setLoggerFactory(loggerFactorySpy);
 		messagingFactorySpy = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactorySpy);
+		setUpDefaultProperties();
+	}
 
+	private void setUpDefaultProperties() {
+		defaultProperties.put("messaging.hostname", "messaging.alvin-portal.org");
+		defaultProperties.put("messaging.port", "5672");
+		defaultProperties.put("messaging.virtualHost", "alvin");
+		defaultProperties.put("messaging.exchange", "index");
+		defaultProperties.put("messaging.routingKey", "#");
+		defaultProperties.put("appTokenVerifierUrl", "someAppTokenVerifierUrl");
+		defaultProperties.put("baseUrl", "someBaseUrl");
+		defaultProperties.put("cora.userId", "userIdForCora");
+		defaultProperties.put("cora.appToken", "appTokenForCora");
 	}
 
 	@Test
-	public void testConstructorIsPrivate() throws NoSuchMethodException, IllegalAccessException,
-			InvocationTargetException, InstantiationException {
+	public void testConstructorIsPrivate() throws Exception {
 		Constructor<IndexerMessengerStarter> constructor = IndexerMessengerStarter.class
 				.getDeclaredConstructor();
 		assertTrue(Modifier.isPrivate(constructor.getModifiers()));
@@ -59,10 +83,19 @@ public class IndexerMessengerStarterTest {
 	}
 
 	@Test
-	public void testMainMethodCoraClientFactorySetUpCorrectly()
-			throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
-			InvocationTargetException, InstantiationException {
+	public void testMainMethod() {
+		String args[] = new String[] { "alvinIndexer.properties" };
+		IndexerMessengerStarter.main(args);
+		assertNoFatalErrorMessages();
+	}
 
+	private void assertNoFatalErrorMessages() {
+		LoggerSpy loggerSpy = loggerFactorySpy.createdLoggers.get(testedClassName);
+		assertNull(loggerSpy);
+	}
+
+	@Test
+	public void testMainMethodCoraClientFactorySetUpCorrectly() throws Exception {
 		String args[] = new String[] { "alvinIndexer.properties" };
 		IndexerMessengerStarter.main(args);
 
@@ -76,7 +109,17 @@ public class IndexerMessengerStarterTest {
 	}
 
 	@Test
-	public void testMainMethodMessageParserFactorySetUpCorrectly()
+	public void testMainMethodMessageParserFactorySetUpCorrectly() throws Exception {
+
+		String args[] = new String[] { "alvinIndexer.properties" };
+		IndexerMessengerStarter.main(args);
+
+		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		assertTrue(messageListener.getMessageParserFactory() instanceof AlvinMessageParserFactory);
+	}
+
+	@Test
+	public void testMainMethodMessagingRoutingInfoSetUpCorrectly()
 			throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
 			InvocationTargetException, InstantiationException {
 
@@ -84,7 +127,32 @@ public class IndexerMessengerStarterTest {
 		IndexerMessengerStarter.main(args);
 
 		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
-		assertTrue(messageListener.getMessageParserFactory() instanceof AlvinMessageParserFactory);
+		AmqpMessageRoutingInfo messagingRoutingInfo = (AmqpMessageRoutingInfo) messageListener
+				.getMessageRoutingInfo();
+		// assert same as in alvinindexer.properties
+		assertNotNull(messagingRoutingInfo);
+		assertEquals(messagingRoutingInfo.hostname, "messaging.alvin-portal.org");
+		assertEquals(messagingRoutingInfo.port, "5672");
+		assertEquals(messagingRoutingInfo.virtualHost, "alvin");
+		assertEquals(messagingRoutingInfo.exchange, "index");
+		assertEquals(messagingRoutingInfo.routingKey, "#");
+
+	}
+
+	@Test
+	public void testMainMethodCoraCredentialsSetUpCorrectly()
+			throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
+			InvocationTargetException, InstantiationException {
+
+		String args[] = new String[] { "alvinIndexer.properties" };
+		IndexerMessengerStarter.main(args);
+
+		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		CoraCredentials credentials = messageListener.getCredentials();
+
+		// assert same as in alvinindexer.properties
+		assertEquals(credentials.userId, "userIdForCora");
+		assertEquals(credentials.appToken, "appTokenForCora");
 	}
 
 	@Test
@@ -133,6 +201,22 @@ public class IndexerMessengerStarterTest {
 				"Unable to start IndexerMessengerStarter ");
 	}
 
-	// TODO: check properties somehow? check they are passed to indexmessanger, or do
-	// all check here and create MessagingRoutinginfo at the same time??
+	@Test
+	public void testPropertiesContainsHostname() {
+		Properties properties = new Properties();
+		try {
+			InputStream input = Files.newInputStream(Paths
+					.get("src/test/resources/alvinIndexerForTestingMissingParameters.properties"));
+			properties.load(input);
+			properties.remove("messaging.hostname");
+			properties.store(new FileOutputStream(
+					"src/test/resources/alvinIndexerMissingBaseUrl.properties"), null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String args[] = new String[] { "alvinIndexerForTestingMissingParameters.properties" };
+
+		IndexerMessengerStarter.main(args);
+	}
 }

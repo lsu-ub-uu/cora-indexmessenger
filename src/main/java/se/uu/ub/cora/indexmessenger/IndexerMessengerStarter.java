@@ -25,6 +25,7 @@ import java.util.Properties;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactoryImp;
 import se.uu.ub.cora.logger.LoggerProvider;
+import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 
 public class IndexerMessengerStarter {
 
@@ -43,7 +44,7 @@ public class IndexerMessengerStarter {
 				.getResourceAsStream(propertiesFileName)) {
 
 			Properties properties = loadProperites(input);
-			createIndexMessengerListner(properties);
+			createIndexMessengerListener(properties);
 
 		} catch (Exception ex) {
 			// TODO: om jag lägger upp den här och kör alla test så funkar inte
@@ -60,12 +61,15 @@ public class IndexerMessengerStarter {
 		return properties;
 	}
 
-	private static void createIndexMessengerListner(Properties properties) {
+	private static void createIndexMessengerListener(Properties properties) {
 		CoraClientFactory coraClientFactory = createCoraClientFactory(properties);
 		MessageParserFactory messageParserFactory = new AlvinMessageParserFactory();
+		AmqpMessageRoutingInfo routingInfo = createMessageRoutingInfo(properties);
+		String userId = properties.getProperty("cora.userId");
+		String apptoken = properties.getProperty("cora.appToken");
 
 		indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory,
-				messageParserFactory, properties);
+				messageParserFactory, routingInfo, new CoraCredentials(userId, apptoken));
 	}
 
 	private static CoraClientFactory createCoraClientFactory(Properties properties) {
@@ -78,10 +82,24 @@ public class IndexerMessengerStarter {
 
 	private static String extractPropertyThrowErrorIfNotFound(Properties properties,
 			String propertyName) {
+		throwErrorIfPropertyNameIsMissing(properties, propertyName);
+		return properties.getProperty(propertyName);
+	}
+
+	private static void throwErrorIfPropertyNameIsMissing(Properties properties,
+			String propertyName) {
 		if (!properties.containsKey(propertyName)) {
 			throw new RuntimeException(
 					"Property with name " + propertyName + " not found in properties");
 		}
-		return properties.getProperty(propertyName);
+	}
+
+	private static AmqpMessageRoutingInfo createMessageRoutingInfo(Properties properties) {
+		String hostname = properties.getProperty("messaging.hostname");
+		String port = properties.getProperty("messaging.port");
+		String virtualHost = properties.getProperty("messaging.virtualHost");
+		String exchange = properties.getProperty("messaging.exchange");
+		String routingKey = properties.getProperty("messaging.routingKey");
+		return new AmqpMessageRoutingInfo(hostname, port, virtualHost, exchange, routingKey);
 	}
 }
