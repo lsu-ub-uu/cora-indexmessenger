@@ -64,8 +64,8 @@ public class IndexerMessengerStarter {
 		CoraClientFactory coraClientFactory = createCoraClientFactory(properties);
 		MessageParserFactory messageParserFactory = new AlvinMessageParserFactory();
 
-		indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory, properties,
-				messageParserFactory);
+		indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory,
+				messageParserFactory, properties);
 	}
 
 	private static CoraClientFactory createCoraClientFactory(Properties properties) {

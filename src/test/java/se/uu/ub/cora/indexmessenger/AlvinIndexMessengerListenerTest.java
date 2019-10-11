@@ -58,10 +58,10 @@ public class AlvinIndexMessengerListenerTest {
 		properties.put("messaging.virtualHost", "alvin");
 		properties.put("messaging.exchange", "index");
 		properties.put("messaging.routingKey", "#");
-		properties.put("userId", "someUserId");
-		properties.put("appToken", "someAppToken");
+		properties.put("cora.userId", "userIdForCora");
+		properties.put("cora.appToken", "appTokenForCora");
 
-		iml = new AlvinIndexMessengerListener(coraClientFactory, properties, messageParserFactory);
+		iml = new AlvinIndexMessengerListener(coraClientFactory, messageParserFactory, properties);
 	}
 
 	@Test
@@ -99,14 +99,20 @@ public class AlvinIndexMessengerListenerTest {
 	public void testReceiverIsIndexReceiver() throws Exception {
 		MessageReceiver messageReceiver = messagingFactorySpy.messageListenerSpy.messageReceiver;
 		assertTrue(messageReceiver instanceof IndexMessageReceiver);
+	}
 
+	@Test
+	public void testCoraClientFactoryIsCalledCorrectly() throws Exception {
+		assertTrue(coraClientFactory.factoredHasBeenCalled);
+		assertEquals(coraClientFactory.userId, "userIdForCora");
+		assertEquals(coraClientFactory.appToken, "appTokenForCora");
 	}
 
 	@Test
 	public void testReceiverContainsCoraClientFromCoraClientFactory() throws Exception {
 		assertTrue(coraClientFactory.factoredHasBeenCalled);
-		assertEquals(coraClientFactory.userId, properties.get("userId"));
-		assertEquals(coraClientFactory.appToken, properties.get("appToken"));
+		assertEquals(coraClientFactory.userId, properties.get("cora.userId"));
+		assertEquals(coraClientFactory.appToken, properties.get("cora.appToken"));
 
 		IndexMessageReceiver messageReceiver = (IndexMessageReceiver) messagingFactorySpy.messageListenerSpy.messageReceiver;
 		assertSame(messageReceiver.getCoraClient(), coraClientFactory.factoredClient);
