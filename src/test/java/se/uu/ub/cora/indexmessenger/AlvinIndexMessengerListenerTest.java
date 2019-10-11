@@ -20,6 +20,7 @@
 package se.uu.ub.cora.indexmessenger;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Properties;
@@ -38,6 +39,7 @@ public class AlvinIndexMessengerListenerTest {
 	private String testedClassName = "AlvinIndexMessengerListener";
 	private MessagingFactorySpy messagingFactorySpy;
 	private CoraClientFactorySpy coraClientFactory;
+	private MessageParserFactory messageParserFactory;
 	private AlvinIndexMessengerListener iml;
 	private Properties properties;
 
@@ -49,14 +51,17 @@ public class AlvinIndexMessengerListenerTest {
 		MessagingProvider.setMessagingFactory(messagingFactorySpy);
 
 		coraClientFactory = new CoraClientFactorySpy();
+		messageParserFactory = new MessageParserFactorySpy();
 		properties = new Properties();
 		properties.put("messaging.hostname", "messaging.alvin-portal.org");
 		properties.put("messaging.port", "5672");
 		properties.put("messaging.virtualHost", "alvin");
 		properties.put("messaging.exchange", "index");
 		properties.put("messaging.routingKey", "#");
+		properties.put("userId", "someUserId");
+		properties.put("appToken", "someAppToken");
 
-		iml = new AlvinIndexMessengerListener(coraClientFactory, properties);
+		iml = new AlvinIndexMessengerListener(coraClientFactory, properties, messageParserFactory);
 	}
 
 	@Test
@@ -94,18 +99,23 @@ public class AlvinIndexMessengerListenerTest {
 	public void testReceiverIsIndexReceiver() throws Exception {
 		MessageReceiver messageReceiver = messagingFactorySpy.messageListenerSpy.messageReceiver;
 		assertTrue(messageReceiver instanceof IndexMessageReceiver);
-		// assertEquals(messageReceiver.getCoraClient(), clientFactory.factoredClient);
 
 	}
 
 	@Test
 	public void testReceiverContainsCoraClientFromCoraClientFactory() throws Exception {
-		// TODO: how is this true yet?
 		assertTrue(coraClientFactory.factoredHasBeenCalled);
-		// IndexMessageReceiver messageReceiver = (IndexMessageReceiver)
-		// messagingFactorySpy.messageListenerSpy.messageReceiver;
-		// assertSame(messageReceiver.getCoraClient(), coraClientFactory.factoredClient);
-		// assertEquals(messageReceiver.getCoraClient(), clientFactory.factoredClient);
+		assertEquals(coraClientFactory.userId, properties.get("userId"));
+		assertEquals(coraClientFactory.appToken, properties.get("appToken"));
 
+		IndexMessageReceiver messageReceiver = (IndexMessageReceiver) messagingFactorySpy.messageListenerSpy.messageReceiver;
+		assertSame(messageReceiver.getCoraClient(), coraClientFactory.factoredClient);
+
+	}
+
+	@Test
+	public void testMessageParserFactoryIsSentToCoraClient() {
+		IndexMessageReceiver messageReceiver = (IndexMessageReceiver) messagingFactorySpy.messageListenerSpy.messageReceiver;
+		assertSame(messageReceiver.getMessageParserFactory(), messageParserFactory);
 	}
 }
