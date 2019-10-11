@@ -33,6 +33,7 @@ import se.uu.ub.cora.messaging.MessagingProvider;
 public class AlvinIndexMessengerListener {
 	private Logger logger = LoggerProvider.getLoggerForClass(AlvinIndexMessengerListener.class);
 	private CoraClientFactory coraClientFactory;
+	private MessageParserFactory messageParserFactory;
 
 	// routingInfo, coraClientFactory, messageParserFactory
 	public AlvinIndexMessengerListener(CoraClientFactory coraClientFactory, Properties properties,
@@ -43,6 +44,8 @@ public class AlvinIndexMessengerListener {
 		// prop.load(input);
 
 		this.coraClientFactory = coraClientFactory;
+		this.messageParserFactory = messageParserFactory;
+
 		AmqpMessageRoutingInfo routingInfo = createMessageRoutingInfo(properties);
 		MessageListener topicMessageListener = MessagingProvider
 				.getTopicMessageListener(routingInfo);
@@ -72,6 +75,11 @@ public class AlvinIndexMessengerListener {
 	public CoraClientFactory getCoraClientFactory() {
 		// needed for test
 		return coraClientFactory;
+	}
+
+	public MessageParserFactory getMessageParserFactory() {
+		// needed for test
+		return messageParserFactory;
 	}
 
 }

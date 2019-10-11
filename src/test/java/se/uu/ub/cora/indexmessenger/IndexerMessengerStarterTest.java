@@ -19,7 +19,6 @@
 package se.uu.ub.cora.indexmessenger;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.lang.reflect.Constructor;
@@ -60,20 +59,32 @@ public class IndexerMessengerStarterTest {
 	}
 
 	@Test
-	public void testMainMethod() throws ClassNotFoundException, NoSuchMethodException,
-			IllegalAccessException, InvocationTargetException, InstantiationException {
-		String args[] = new String[] { "alvinIndexer.properties" };
+	public void testMainMethodCoraClientFactorySetUpCorrectly()
+			throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
+			InvocationTargetException, InstantiationException {
 
+		String args[] = new String[] { "alvinIndexer.properties" };
 		IndexerMessengerStarter.main(args);
 
 		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
-		assertNotNull(messageListener);
 		CoraClientFactoryImp coraClientFactory = (CoraClientFactoryImp) messageListener
 				.getCoraClientFactory();
+
 		// assert same as in alvinindexer.properties
 		assertEquals(coraClientFactory.getAppTokenVerifierUrl(), "someAppTokenVerifierUrl");
 		assertEquals(coraClientFactory.getBaseUrl(), "someBaseUrl");
-		// assertTrue(messageListener.get)
+	}
+
+	@Test
+	public void testMainMethodMessageParserFactorySetUpCorrectly()
+			throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
+			InvocationTargetException, InstantiationException {
+
+		String args[] = new String[] { "alvinIndexer.properties" };
+		IndexerMessengerStarter.main(args);
+
+		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		assertTrue(messageListener.getMessageParserFactory() instanceof AlvinMessageParserFactory);
 	}
 
 	@Test
@@ -88,6 +99,40 @@ public class IndexerMessengerStarterTest {
 		assertTrue(exception instanceof RuntimeException);
 		assertEquals(exception.getMessage(), "inStream parameter is null");
 		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
-				"Error during initializing of AlvinIndexMessengerListener");
+				"Unable to start IndexerMessengerStarter ");
 	}
+
+	@Test
+	public void testErrorHandlingNoAppTokenVerifierUrl() throws Exception {
+		String args[] = new String[] { "alvinIndexerMissingApptokenUrl.properties" };
+
+		IndexerMessengerStarter.main(args);
+
+		assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
+		Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
+				0);
+		assertTrue(exception instanceof RuntimeException);
+		assertEquals(exception.getMessage(),
+				"Property with name appTokenVerifierUrl not found in properties");
+		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
+				"Unable to start IndexerMessengerStarter ");
+	}
+
+	@Test
+	public void testErrorHandlingNoBaseUrl() throws Exception {
+		String args[] = new String[] { "alvinIndexerMissingBaseUrl.properties" };
+
+		IndexerMessengerStarter.main(args);
+
+		assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
+		Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
+				0);
+		assertTrue(exception instanceof RuntimeException);
+		assertEquals(exception.getMessage(), "Property with name baseUrl not found in properties");
+		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
+				"Unable to start IndexerMessengerStarter ");
+	}
+
+	// TODO: check properties somehow? check they are passed to indexmessanger, or do
+	// all check here and create MessagingRoutinginfo at the same time??
 }

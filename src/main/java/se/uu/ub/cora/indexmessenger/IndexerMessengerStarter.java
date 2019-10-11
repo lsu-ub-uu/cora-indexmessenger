@@ -18,6 +18,7 @@
  */
 package se.uu.ub.cora.indexmessenger;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -40,24 +41,47 @@ public class IndexerMessengerStarter {
 
 		try (InputStream input = IndexerMessengerStarter.class.getClassLoader()
 				.getResourceAsStream(propertiesFileName)) {
-			Properties properties = new Properties();
-			properties.load(input);
 
-			CoraClientFactory coraClientFactory = CoraClientFactoryImp
-					.usingAppTokenVerifierUrlAndBaseUrl(
-							properties.getProperty("appTokenVerifierUrl"),
-							properties.getProperty("baseUrl"));
-
-			MessageParserFactory messageParserFactory = null;
-			indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory, properties,
-					messageParserFactory);
+			Properties properties = loadProperites(input);
+			createIndexMessengerListner(properties);
 
 		} catch (Exception ex) {
 			// TODO: om jag lägger upp den här och kör alla test så funkar inte
 			// testErrorHandlingTest
 			LoggerProvider.getLoggerForClass(IndexerMessengerStarter.class)
-					.logFatalUsingMessageAndException(
-							"Error during initializing of AlvinIndexMessengerListener", ex);
+					.logFatalUsingMessageAndException("Unable to start IndexerMessengerStarter ",
+							ex);
 		}
+	}
+
+	private static Properties loadProperites(InputStream input) throws IOException {
+		Properties properties = new Properties();
+		properties.load(input);
+		return properties;
+	}
+
+	private static void createIndexMessengerListner(Properties properties) {
+		CoraClientFactory coraClientFactory = createCoraClientFactory(properties);
+		MessageParserFactory messageParserFactory = new AlvinMessageParserFactory();
+
+		indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory, properties,
+				messageParserFactory);
+	}
+
+	private static CoraClientFactory createCoraClientFactory(Properties properties) {
+		String appTokenVerifierUrl = extractPropertyThrowErrorIfNotFound(properties,
+				"appTokenVerifierUrl");
+		String baseUrl = extractPropertyThrowErrorIfNotFound(properties, "baseUrl");
+		return CoraClientFactoryImp.usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl,
+				baseUrl);
+	}
+
+	private static String extractPropertyThrowErrorIfNotFound(Properties properties,
+			String propertyName) {
+		if (!properties.containsKey(propertyName)) {
+			throw new RuntimeException(
+					"Property with name " + propertyName + " not found in properties");
+		}
+		return properties.getProperty(propertyName);
 	}
 }
