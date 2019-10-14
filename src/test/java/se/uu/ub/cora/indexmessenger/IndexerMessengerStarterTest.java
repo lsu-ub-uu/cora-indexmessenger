@@ -23,15 +23,11 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -205,22 +201,22 @@ public class IndexerMessengerStarterTest {
 		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
 	}
 
-	private Properties addDefaultPropertiesToTestFile(String fileName) {
-		Properties properties = new Properties();
-		for (Map.Entry<String, String> entry : defaultProperties.entrySet()) {
-			properties.put(entry.getKey(), entry.getValue());
-		}
-		try {
-			storeProperties(properties, fileName);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return properties;
-	}
+	// private Properties addDefaultPropertiesToTestFile(String fileName) {
+	// Properties properties = new Properties();
+	// for (Map.Entry<String, String> entry : defaultProperties.entrySet()) {
+	// properties.put(entry.getKey(), entry.getValue());
+	// }
+	// try {
+	// storeProperties(properties, fileName);
+	// } catch (FileNotFoundException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return properties;
+	// }
 
 	@Test
 	public void testPropertiesErrorWhenPortIsMissing() {
@@ -230,7 +226,7 @@ public class IndexerMessengerStarterTest {
 	}
 
 	private void testPropertiesErrorWhenPropertyIsMissing(String fileName, String propertyName) {
-		removePropertyFromPoperties(propertyName, fileName);
+		// removePropertyFromPoperties(propertyName, fileName);
 
 		String args[] = new String[] { fileName };
 
@@ -270,19 +266,19 @@ public class IndexerMessengerStarterTest {
 				"Unable to start IndexerMessengerStarter ");
 	}
 
-	private void removePropertyFromPoperties(String propertyName, String fileName) {
-		Properties properties = addDefaultPropertiesToTestFile(fileName);
-		try {
-			properties.remove(propertyName);
-			storeProperties(properties, fileName);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	// private void removePropertyFromPoperties(String propertyName, String fileName) {
+	// Properties properties = addDefaultPropertiesToTestFile(fileName);
+	// try {
+	// properties.remove(propertyName);
+	// storeProperties(properties, fileName);
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// }
 
-	private void storeProperties(Properties properties, String fileName)
-			throws IOException, FileNotFoundException {
-		properties.store(new FileOutputStream("src/test/resources/" + fileName), null);
-	}
+	// private void storeProperties(Properties properties, String fileName)
+	// throws IOException, FileNotFoundException {
+	// properties.store(new FileOutputStream("src/test/resources/" + fileName), null);
+	// }
 
 }
