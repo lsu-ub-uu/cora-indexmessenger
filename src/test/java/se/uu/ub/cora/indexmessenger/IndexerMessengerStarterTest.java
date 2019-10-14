@@ -26,8 +26,6 @@ import static org.testng.Assert.assertTrue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -44,7 +42,6 @@ public class IndexerMessengerStarterTest {
 	private LoggerFactorySpy loggerFactorySpy;
 	private MessagingFactorySpy messagingFactorySpy;
 	private String testedClassName = "IndexerMessengerStarter";
-	Map<String, String> defaultProperties = new HashMap<>();
 
 	@BeforeMethod
 	public void setUp() {
@@ -52,19 +49,6 @@ public class IndexerMessengerStarterTest {
 		LoggerProvider.setLoggerFactory(loggerFactorySpy);
 		messagingFactorySpy = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactorySpy);
-		setUpDefaultProperties();
-	}
-
-	private void setUpDefaultProperties() {
-		defaultProperties.put("messaging.hostname", "messaging.alvin-portal.org");
-		defaultProperties.put("messaging.port", "5672");
-		defaultProperties.put("messaging.virtualHost", "alvin");
-		defaultProperties.put("messaging.exchange", "index");
-		defaultProperties.put("messaging.routingKey", "#");
-		defaultProperties.put("appTokenVerifierUrl", "someAppTokenVerifierUrl");
-		defaultProperties.put("baseUrl", "someBaseUrl");
-		defaultProperties.put("cora.userId", "userIdForCora");
-		defaultProperties.put("cora.appToken", "appTokenForCora");
 	}
 
 	@Test
