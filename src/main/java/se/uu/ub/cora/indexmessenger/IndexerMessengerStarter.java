@@ -95,7 +95,6 @@ public class IndexerMessengerStarter {
 	}
 
 	private static AmqpMessageRoutingInfo createMessageRoutingInfo(Properties properties) {
-		// String hostname = properties.getProperty("messaging.hostname");
 		String hostname = extractPropertyThrowErrorIfNotFound(properties, "messaging.hostname");
 		String port = extractPropertyThrowErrorIfNotFound(properties, "messaging.port");
 		String virtualHost = extractPropertyThrowErrorIfNotFound(properties,
