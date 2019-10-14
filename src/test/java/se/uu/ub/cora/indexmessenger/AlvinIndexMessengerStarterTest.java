@@ -20,7 +20,6 @@ package se.uu.ub.cora.indexmessenger;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.lang.reflect.Constructor;
@@ -37,15 +36,15 @@ import se.uu.ub.cora.logger.LoggerProvider;
 import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
-public class IndexerMessengerStarterTest {
+public class AlvinIndexMessengerStarterTest {
 
-	private LoggerFactorySpy loggerFactorySpy;
+	private LoggerFactorySpy loggerFactorySpy = new LoggerFactorySpy();
 	private MessagingFactorySpy messagingFactorySpy;
-	private String testedClassName = "IndexerMessengerStarter";
+	private String testedClassName = "AlvinIndexMessengerStarter";
 
 	@BeforeMethod
 	public void setUp() {
-		loggerFactorySpy = new LoggerFactorySpy();
+		loggerFactorySpy.resetLogs(testedClassName);
 		LoggerProvider.setLoggerFactory(loggerFactorySpy);
 		messagingFactorySpy = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactorySpy);
@@ -53,7 +52,7 @@ public class IndexerMessengerStarterTest {
 
 	@Test
 	public void testConstructorIsPrivate() throws Exception {
-		Constructor<IndexerMessengerStarter> constructor = IndexerMessengerStarter.class
+		Constructor<AlvinIndexMessengerStarter> constructor = AlvinIndexMessengerStarter.class
 				.getDeclaredConstructor();
 		assertTrue(Modifier.isPrivate(constructor.getModifiers()));
 		constructor.setAccessible(true);
@@ -63,21 +62,28 @@ public class IndexerMessengerStarterTest {
 	@Test
 	public void testMainMethod() {
 		String args[] = new String[] { "alvinIndexer.properties" };
-		IndexerMessengerStarter.main(args);
+		AlvinIndexMessengerStarter.main(args);
 		assertNoFatalErrorMessages();
 	}
 
 	private void assertNoFatalErrorMessages() {
 		LoggerSpy loggerSpy = loggerFactorySpy.createdLoggers.get(testedClassName);
-		assertNull(loggerSpy);
+		assertNotNull(loggerSpy);
+	}
+
+	@Test
+	public void testMainMethodWithoutPropertiesFileNameShouldUseDefaultFilename() {
+		String args[] = new String[] {};
+		AlvinIndexMessengerStarter.main(args);
+		assertNoFatalErrorMessages();
 	}
 
 	@Test
 	public void testMainMethodCoraClientFactorySetUpCorrectly() throws Exception {
 		String args[] = new String[] { "alvinIndexer.properties" };
-		IndexerMessengerStarter.main(args);
+		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		CoraClientFactoryImp coraClientFactory = (CoraClientFactoryImp) messageListener
 				.getCoraClientFactory();
 
@@ -89,9 +95,9 @@ public class IndexerMessengerStarterTest {
 	@Test
 	public void testMainMethodMessageParserFactorySetUpCorrectly() throws Exception {
 		String args[] = new String[] { "alvinIndexer.properties" };
-		IndexerMessengerStarter.main(args);
+		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		assertTrue(messageListener.getMessageParserFactory() instanceof AlvinMessageParserFactory);
 	}
 
@@ -101,9 +107,9 @@ public class IndexerMessengerStarterTest {
 			InvocationTargetException, InstantiationException {
 
 		String args[] = new String[] { "alvinIndexer.properties" };
-		IndexerMessengerStarter.main(args);
+		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		AmqpMessageRoutingInfo messagingRoutingInfo = (AmqpMessageRoutingInfo) messageListener
 				.getMessageRoutingInfo();
 		// assert same as in alvinindexer.properties
@@ -122,9 +128,9 @@ public class IndexerMessengerStarterTest {
 			InvocationTargetException, InstantiationException {
 
 		String args[] = new String[] { "alvinIndexer.properties" };
-		IndexerMessengerStarter.main(args);
+		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = IndexerMessengerStarter.indexMessengerListener;
+		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		CoraCredentials credentials = messageListener.getCredentials();
 
 		// assert same as in alvinindexer.properties
@@ -136,7 +142,7 @@ public class IndexerMessengerStarterTest {
 	public void testErrorHandling() throws Exception {
 		String args[] = new String[] { "someNoneExistingFile" };
 
-		IndexerMessengerStarter.main(args);
+		AlvinIndexMessengerStarter.main(args);
 
 		assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
 		Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
@@ -144,7 +150,7 @@ public class IndexerMessengerStarterTest {
 		assertTrue(exception instanceof RuntimeException);
 		assertEquals(exception.getMessage(), "inStream parameter is null");
 		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
-				"Unable to start IndexerMessengerStarter ");
+				"Unable to start AlvinIndexMessengerStarter ");
 	}
 
 	@Test
@@ -153,6 +159,13 @@ public class IndexerMessengerStarterTest {
 		String fileName = "propertiesForTestingMissingParameterApptokenUrl.properties";
 		String propertyName = "appTokenVerifierUrl";
 		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
+	}
+
+	private void testPropertiesErrorWhenPropertyIsMissing(String fileName, String propertyName) {
+		String args[] = new String[] { fileName };
+
+		AlvinIndexMessengerStarter.main(args);
+		assertCorrectErrorForMissingProperty(propertyName);
 	}
 
 	@Test
@@ -174,13 +187,6 @@ public class IndexerMessengerStarterTest {
 		String fileName = "propertiesForTestingMissingParameterPort.properties";
 		String propertyName = "messaging.port";
 		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
-	}
-
-	private void testPropertiesErrorWhenPropertyIsMissing(String fileName, String propertyName) {
-		String args[] = new String[] { fileName };
-
-		IndexerMessengerStarter.main(args);
-		assertCorrectErrorForMissingProperty(propertyName);
 	}
 
 	@Test
@@ -212,7 +218,7 @@ public class IndexerMessengerStarterTest {
 		assertEquals(exception.getMessage(),
 				"Property with name " + propertyName + " not found in properties");
 		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
-				"Unable to start IndexerMessengerStarter ");
+				"Unable to start AlvinIndexMessengerStarter ");
 	}
 
 }

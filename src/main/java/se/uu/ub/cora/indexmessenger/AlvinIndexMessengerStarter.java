@@ -24,35 +24,40 @@ import java.util.Properties;
 
 import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactoryImp;
+import se.uu.ub.cora.logger.Logger;
 import se.uu.ub.cora.logger.LoggerProvider;
 import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 
-public class IndexerMessengerStarter {
+public class AlvinIndexMessengerStarter {
 
-	// private static Logger logger =
-	// LoggerProvider.getLoggerForClass(IndexerMessengerStarter.class);
+	private static Logger logger = LoggerProvider
+			.getLoggerForClass(AlvinIndexMessengerStarter.class);
 
 	protected static AlvinIndexMessengerListener indexMessengerListener;
 
-	private IndexerMessengerStarter() {
+	private AlvinIndexMessengerStarter() {
 	}
 
 	public static void main(String[] args) {
-		String propertiesFileName = args[0];
+		String propertiesFileName = getFilenameFromArgsOrDefault(args);
 
-		try (InputStream input = IndexerMessengerStarter.class.getClassLoader()
+		try (InputStream input = AlvinIndexMessengerStarter.class.getClassLoader()
 				.getResourceAsStream(propertiesFileName)) {
 
 			Properties properties = loadProperites(input);
 			createIndexMessengerListener(properties);
 
 		} catch (Exception ex) {
-			// TODO: om jag lägger upp den här och kör alla test så funkar inte
-			// testErrorHandlingTest
-			LoggerProvider.getLoggerForClass(IndexerMessengerStarter.class)
-					.logFatalUsingMessageAndException("Unable to start IndexerMessengerStarter ",
-							ex);
+			logger.logFatalUsingMessageAndException("Unable to start AlvinIndexMessengerStarter ",
+					ex);
 		}
+	}
+
+	private static String getFilenameFromArgsOrDefault(String[] args) {
+		if (args.length > 0) {
+			return args[0];
+		}
+		return "alvinIndexer.properties";
 	}
 
 	private static Properties loadProperites(InputStream input) throws IOException {
@@ -62,17 +67,16 @@ public class IndexerMessengerStarter {
 	}
 
 	private static void createIndexMessengerListener(Properties properties) {
-		CoraClientFactory coraClientFactory = createCoraClientFactory(properties);
+		CoraClientFactory coraClientFactory = createCoraClientFactoryFromProperties(properties);
 		MessageParserFactory messageParserFactory = new AlvinMessageParserFactory();
-		AmqpMessageRoutingInfo routingInfo = createMessageRoutingInfo(properties);
-		String userId = properties.getProperty("cora.userId");
-		String apptoken = properties.getProperty("cora.appToken");
+		AmqpMessageRoutingInfo routingInfo = createMessageRoutingInfoFromProperties(properties);
+		CoraCredentials credentials = createCoraCredentialsFromProperties(properties);
 
 		indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory,
-				messageParserFactory, routingInfo, new CoraCredentials(userId, apptoken));
+				messageParserFactory, routingInfo, credentials);
 	}
 
-	private static CoraClientFactory createCoraClientFactory(Properties properties) {
+	private static CoraClientFactory createCoraClientFactoryFromProperties(Properties properties) {
 		String appTokenVerifierUrl = extractPropertyThrowErrorIfNotFound(properties,
 				"appTokenVerifierUrl");
 		String baseUrl = extractPropertyThrowErrorIfNotFound(properties, "baseUrl");
@@ -94,7 +98,8 @@ public class IndexerMessengerStarter {
 		}
 	}
 
-	private static AmqpMessageRoutingInfo createMessageRoutingInfo(Properties properties) {
+	private static AmqpMessageRoutingInfo createMessageRoutingInfoFromProperties(
+			Properties properties) {
 		String hostname = extractPropertyThrowErrorIfNotFound(properties, "messaging.hostname");
 		String port = extractPropertyThrowErrorIfNotFound(properties, "messaging.port");
 		String virtualHost = extractPropertyThrowErrorIfNotFound(properties,
@@ -102,5 +107,11 @@ public class IndexerMessengerStarter {
 		String exchange = extractPropertyThrowErrorIfNotFound(properties, "messaging.exchange");
 		String routingKey = extractPropertyThrowErrorIfNotFound(properties, "messaging.routingKey");
 		return new AmqpMessageRoutingInfo(hostname, port, virtualHost, exchange, routingKey);
+	}
+
+	private static CoraCredentials createCoraCredentialsFromProperties(Properties properties) {
+		String userId = properties.getProperty("cora.userId");
+		String apptoken = properties.getProperty("cora.appToken");
+		return new CoraCredentials(userId, apptoken);
 	}
 }
