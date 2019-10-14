@@ -95,11 +95,13 @@ public class IndexerMessengerStarter {
 	}
 
 	private static AmqpMessageRoutingInfo createMessageRoutingInfo(Properties properties) {
-		String hostname = properties.getProperty("messaging.hostname");
-		String port = properties.getProperty("messaging.port");
-		String virtualHost = properties.getProperty("messaging.virtualHost");
-		String exchange = properties.getProperty("messaging.exchange");
-		String routingKey = properties.getProperty("messaging.routingKey");
+		// String hostname = properties.getProperty("messaging.hostname");
+		String hostname = extractPropertyThrowErrorIfNotFound(properties, "messaging.hostname");
+		String port = extractPropertyThrowErrorIfNotFound(properties, "messaging.port");
+		String virtualHost = extractPropertyThrowErrorIfNotFound(properties,
+				"messaging.virtualHost");
+		String exchange = extractPropertyThrowErrorIfNotFound(properties, "messaging.exchange");
+		String routingKey = extractPropertyThrowErrorIfNotFound(properties, "messaging.routingKey");
 		return new AmqpMessageRoutingInfo(hostname, port, virtualHost, exchange, routingKey);
 	}
 }

@@ -23,14 +23,12 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -110,7 +108,6 @@ public class IndexerMessengerStarterTest {
 
 	@Test
 	public void testMainMethodMessageParserFactorySetUpCorrectly() throws Exception {
-
 		String args[] = new String[] { "alvinIndexer.properties" };
 		IndexerMessengerStarter.main(args);
 
@@ -202,21 +199,90 @@ public class IndexerMessengerStarterTest {
 	}
 
 	@Test
-	public void testPropertiesContainsHostname() {
+	public void testPropertiesErrorWhenHostnameIsMissing() {
+		String propertyName = "messaging.hostname";
+		String fileName = "propertiesForTestingMissingParameterHostname.properties";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
+	}
+
+	private Properties addDefaultPropertiesToTestFile(String fileName) {
 		Properties properties = new Properties();
+		for (Map.Entry<String, String> entry : defaultProperties.entrySet()) {
+			properties.put(entry.getKey(), entry.getValue());
+		}
 		try {
-			InputStream input = Files.newInputStream(Paths
-					.get("src/test/resources/alvinIndexerForTestingMissingParameters.properties"));
-			properties.load(input);
-			properties.remove("messaging.hostname");
-			properties.store(new FileOutputStream(
-					"src/test/resources/alvinIndexerMissingBaseUrl.properties"), null);
+			storeProperties(properties, fileName);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String args[] = new String[] { "alvinIndexerForTestingMissingParameters.properties" };
+		return properties;
+	}
+
+	@Test
+	public void testPropertiesErrorWhenPortIsMissing() {
+		String fileName = "propertiesForTestingMissingParameterPort.properties";
+		String propertyName = "messaging.port";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
+	}
+
+	private void testPropertiesErrorWhenPropertyIsMissing(String fileName, String propertyName) {
+		removePropertyFromPoperties(propertyName, fileName);
+
+		String args[] = new String[] { fileName };
 
 		IndexerMessengerStarter.main(args);
+		assertCorrectErrorForMissingProperty(propertyName);
 	}
+
+	@Test
+	public void testPropertiesErrorWhenVirtualHostIsMissing() {
+		String propertyName = "messaging.virtualHost";
+		String fileName = "propertiesForTestingMissingParameterVirtualHost.properties";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
+	}
+
+	@Test
+	public void testPropertiesErrorWhenExchangeIsMissing() {
+		String propertyName = "messaging.exchange";
+		String fileName = "propertiesForTestingMissingParameterExchange.properties";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
+	}
+
+	@Test
+	public void testPropertiesErrorWhenRoutingKeyIsMissing() {
+		String propertyName = "messaging.routingKey";
+		String fileName = "propertiesForTestingMissingParameterRoutingKey.properties";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
+	}
+
+	private void assertCorrectErrorForMissingProperty(String propertyName) {
+		assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
+		Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
+				0);
+		assertTrue(exception instanceof RuntimeException);
+		assertEquals(exception.getMessage(),
+				"Property with name " + propertyName + " not found in properties");
+		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
+				"Unable to start IndexerMessengerStarter ");
+	}
+
+	private void removePropertyFromPoperties(String propertyName, String fileName) {
+		Properties properties = addDefaultPropertiesToTestFile(fileName);
+		try {
+			properties.remove(propertyName);
+			storeProperties(properties, fileName);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void storeProperties(Properties properties, String fileName)
+			throws IOException, FileNotFoundException {
+		properties.store(new FileOutputStream("src/test/resources/" + fileName), null);
+	}
+
 }
