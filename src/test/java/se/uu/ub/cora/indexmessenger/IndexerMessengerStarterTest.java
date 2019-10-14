@@ -165,33 +165,17 @@ public class IndexerMessengerStarterTest {
 
 	@Test
 	public void testErrorHandlingNoAppTokenVerifierUrl() throws Exception {
-		String args[] = new String[] { "alvinIndexerMissingApptokenUrl.properties" };
 
-		IndexerMessengerStarter.main(args);
-
-		assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
-		Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
-				0);
-		assertTrue(exception instanceof RuntimeException);
-		assertEquals(exception.getMessage(),
-				"Property with name appTokenVerifierUrl not found in properties");
-		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
-				"Unable to start IndexerMessengerStarter ");
+		String fileName = "propertiesForTestingMissingParameterApptokenUrl.properties";
+		String propertyName = "appTokenVerifierUrl";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
 	}
 
 	@Test
 	public void testErrorHandlingNoBaseUrl() throws Exception {
-		String args[] = new String[] { "alvinIndexerMissingBaseUrl.properties" };
-
-		IndexerMessengerStarter.main(args);
-
-		assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
-		Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
-				0);
-		assertTrue(exception instanceof RuntimeException);
-		assertEquals(exception.getMessage(), "Property with name baseUrl not found in properties");
-		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
-				"Unable to start IndexerMessengerStarter ");
+		String fileName = "propertiesForTestingMissingParameterBaseUrl.properties";
+		String propertyName = "baseUrl";
+		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
 	}
 
 	@Test
@@ -201,23 +185,6 @@ public class IndexerMessengerStarterTest {
 		testPropertiesErrorWhenPropertyIsMissing(fileName, propertyName);
 	}
 
-	// private Properties addDefaultPropertiesToTestFile(String fileName) {
-	// Properties properties = new Properties();
-	// for (Map.Entry<String, String> entry : defaultProperties.entrySet()) {
-	// properties.put(entry.getKey(), entry.getValue());
-	// }
-	// try {
-	// storeProperties(properties, fileName);
-	// } catch (FileNotFoundException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// return properties;
-	// }
-
 	@Test
 	public void testPropertiesErrorWhenPortIsMissing() {
 		String fileName = "propertiesForTestingMissingParameterPort.properties";
@@ -226,8 +193,6 @@ public class IndexerMessengerStarterTest {
 	}
 
 	private void testPropertiesErrorWhenPropertyIsMissing(String fileName, String propertyName) {
-		// removePropertyFromPoperties(propertyName, fileName);
-
 		String args[] = new String[] { fileName };
 
 		IndexerMessengerStarter.main(args);
@@ -265,20 +230,5 @@ public class IndexerMessengerStarterTest {
 		assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
 				"Unable to start IndexerMessengerStarter ");
 	}
-
-	// private void removePropertyFromPoperties(String propertyName, String fileName) {
-	// Properties properties = addDefaultPropertiesToTestFile(fileName);
-	// try {
-	// properties.remove(propertyName);
-	// storeProperties(properties, fileName);
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	// }
-
-	// private void storeProperties(Properties properties, String fileName)
-	// throws IOException, FileNotFoundException {
-	// properties.store(new FileOutputStream("src/test/resources/" + fileName), null);
-	// }
 
 }
