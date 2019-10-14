@@ -83,7 +83,7 @@ public class AlvinIndexMessengerStarterTest {
 		String args[] = new String[] { "alvinIndexer.properties" };
 		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
+		IndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		CoraClientFactoryImp coraClientFactory = (CoraClientFactoryImp) messageListener
 				.getCoraClientFactory();
 
@@ -97,7 +97,7 @@ public class AlvinIndexMessengerStarterTest {
 		String args[] = new String[] { "alvinIndexer.properties" };
 		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
+		IndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		assertTrue(messageListener.getMessageParserFactory() instanceof AlvinMessageParserFactory);
 	}
 
@@ -109,7 +109,7 @@ public class AlvinIndexMessengerStarterTest {
 		String args[] = new String[] { "alvinIndexer.properties" };
 		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
+		IndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		AmqpMessageRoutingInfo messagingRoutingInfo = (AmqpMessageRoutingInfo) messageListener
 				.getMessageRoutingInfo();
 		// assert same as in alvinindexer.properties
@@ -130,7 +130,7 @@ public class AlvinIndexMessengerStarterTest {
 		String args[] = new String[] { "alvinIndexer.properties" };
 		AlvinIndexMessengerStarter.main(args);
 
-		AlvinIndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
+		IndexMessengerListener messageListener = AlvinIndexMessengerStarter.indexMessengerListener;
 		CoraCredentials credentials = messageListener.getCredentials();
 
 		// assert same as in alvinindexer.properties

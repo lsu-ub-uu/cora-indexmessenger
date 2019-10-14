@@ -32,12 +32,11 @@ import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageReceiver;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
-public class AlvinIndexMessengerListenerTest {
+public class IndexMessengerListenerTest {
 	private LoggerFactorySpy loggerFactorySpy;
 	private MessagingFactorySpy messagingFactorySpy;
-	// private CoraClientFactorySpy coraClientFactory;
 	private MessageParserFactory messageParserFactory;
-	private AlvinIndexMessengerListener messageListener;
+	private IndexMessengerListener messageListener;
 	private AmqpMessageRoutingInfo routingInfo;
 	private CoraCredentials credentials;
 
@@ -54,7 +53,7 @@ public class AlvinIndexMessengerListenerTest {
 		credentials = new CoraCredentials("userIdForCora", "appTokenForCora");
 		routingInfo = new AmqpMessageRoutingInfo("messaging.alvin-portal.org", "5672", "alvin",
 				"index", "#");
-		messageListener = new AlvinIndexMessengerListener(coraClientFactory, messageParserFactory,
+		messageListener = new IndexMessengerListener(coraClientFactory, messageParserFactory,
 				routingInfo, credentials);
 	}
 

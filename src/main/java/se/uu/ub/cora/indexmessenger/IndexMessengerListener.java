@@ -26,14 +26,13 @@ import se.uu.ub.cora.messaging.MessageReceiver;
 import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
-public class AlvinIndexMessengerListener {
-	// private Logger logger = LoggerProvider.getLoggerForClass(AlvinIndexMessengerListener.class);
+public class IndexMessengerListener {
 	private CoraClientFactory coraClientFactory;
 	private MessageParserFactory messageParserFactory;
 	private MessageRoutingInfo routingInfo;
 	private CoraCredentials credentials;
 
-	public AlvinIndexMessengerListener(CoraClientFactory coraClientFactory,
+	public IndexMessengerListener(CoraClientFactory coraClientFactory,
 			MessageParserFactory messageParserFactory, MessageRoutingInfo routingInfo,
 			CoraCredentials credentials) {
 

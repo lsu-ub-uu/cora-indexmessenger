@@ -33,7 +33,7 @@ public class AlvinIndexMessengerStarter {
 	private static Logger logger = LoggerProvider
 			.getLoggerForClass(AlvinIndexMessengerStarter.class);
 
-	protected static AlvinIndexMessengerListener indexMessengerListener;
+	protected static IndexMessengerListener indexMessengerListener;
 
 	private AlvinIndexMessengerStarter() {
 	}
@@ -72,7 +72,7 @@ public class AlvinIndexMessengerStarter {
 		AmqpMessageRoutingInfo routingInfo = createMessageRoutingInfoFromProperties(properties);
 		CoraCredentials credentials = createCoraCredentialsFromProperties(properties);
 
-		indexMessengerListener = new AlvinIndexMessengerListener(coraClientFactory,
+		indexMessengerListener = new IndexMessengerListener(coraClientFactory,
 				messageParserFactory, routingInfo, credentials);
 	}
 
