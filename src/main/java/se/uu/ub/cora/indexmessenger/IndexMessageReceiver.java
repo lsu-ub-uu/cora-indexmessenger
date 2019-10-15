@@ -105,8 +105,9 @@ public class IndexMessageReceiver implements MessageReceiver {
 		return coraClient;
 	}
 
-	public Object getMessageParserFactory() {
+	public MessageParserFactory getMessageParserFactory() {
 		// needed for test
 		return messageParserFactory;
 	}
+
 }

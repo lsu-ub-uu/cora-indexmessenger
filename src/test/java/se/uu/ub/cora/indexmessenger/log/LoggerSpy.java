@@ -97,4 +97,11 @@ public class LoggerSpy implements Logger {
 
 	}
 
+	public void resetLogs() {
+		fatalMessages = new ArrayList<>();
+		infoMessages = new ArrayList<>();
+		errorMessages = new ArrayList<>();
+		errorExceptions = new ArrayList<>();
+		fatalExceptions = new ArrayList<>();
+	}
 }

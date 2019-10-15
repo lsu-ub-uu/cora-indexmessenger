@@ -67,4 +67,10 @@ public class LoggerFactorySpy implements LoggerFactory {
 		return ((createdLoggers.get(testedClassName)).fatalExceptions).get(exceptionNo);
 	}
 
+	public void resetLogs(String testedClassName) {
+		if (createdLoggers.containsKey(testedClassName)) {
+			LoggerSpy loggerSpy = createdLoggers.get(testedClassName);
+			loggerSpy.resetLogs();
+		}
+	}
 }

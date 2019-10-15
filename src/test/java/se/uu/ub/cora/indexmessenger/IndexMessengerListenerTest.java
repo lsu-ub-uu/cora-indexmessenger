@@ -23,8 +23,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
-import java.util.Properties;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -34,14 +32,13 @@ import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageReceiver;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
-public class AlvinIndexMessengerListenerTest {
+public class IndexMessengerListenerTest {
 	private LoggerFactorySpy loggerFactorySpy;
-	private String testedClassName = "AlvinIndexMessengerListener";
 	private MessagingFactorySpy messagingFactorySpy;
-	private CoraClientFactorySpy coraClientFactory;
-	private AlvinIndexMessengerListener iml;
 	private MessageParserFactory messageParserFactory;
-	private Properties properties;
+	private IndexMessengerListener messageListener;
+	private AmqpMessageRoutingInfo routingInfo;
+	private CoraCredentials credentials;
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -50,51 +47,23 @@ public class AlvinIndexMessengerListenerTest {
 		messagingFactorySpy = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactorySpy);
 
-		coraClientFactory = new CoraClientFactorySpy();
+		CoraClientFactorySpy coraClientFactory = new CoraClientFactorySpy();
 		messageParserFactory = new MessageParserFactorySpy();
-		properties = new Properties();
-		properties.put("messaging.hostname", "messaging.alvin-portal.org");
-		properties.put("messaging.port", "5672");
-		properties.put("messaging.virtualHost", "alvin");
-		properties.put("messaging.exchange", "index");
-		properties.put("messaging.routingKey", "#");
 
-		properties.put("cora.userId", "userIdForCora");
-		properties.put("cora.appToken", "appTokenForCora");
-
-		iml = new AlvinIndexMessengerListener(coraClientFactory, messageParserFactory, properties);
+		credentials = new CoraCredentials("userIdForCora", "appTokenForCora");
+		routingInfo = new AmqpMessageRoutingInfo("messaging.alvin-portal.org", "5672", "alvin",
+				"index", "#");
+		messageListener = new IndexMessengerListener(coraClientFactory, messageParserFactory,
+				routingInfo, credentials);
 	}
 
 	@Test
-	public void testInitCreatesAmpqMessageRoutingInfoFromProperties() throws Exception {
-		// assertEquals(messagingFactorySpy.factorTopicMessageListenerCalled, false);
-
+	public void testInitPassedAmpqMessageRoutingInfoToTopicMessageListener() throws Exception {
 		assertEquals(messagingFactorySpy.factorTopicMessageListenerCalled, true);
 		AmqpMessageRoutingInfo messagingRoutingInfo = (AmqpMessageRoutingInfo) messagingFactorySpy.messagingRoutingInfo;
-		assertEquals(messagingRoutingInfo.hostname, "messaging.alvin-portal.org");
-		assertEquals(messagingRoutingInfo.port, "5672");
-		assertEquals(messagingRoutingInfo.virtualHost, "alvin");
-		assertEquals(messagingRoutingInfo.exchange, "index");
-		assertEquals(messagingRoutingInfo.routingKey, "#");
 
-		// todo: new test
+		assertSame(messagingRoutingInfo, routingInfo);
 	}
-	// MessageReceiver messageReceiver = new MessageReceiverSpy();
-
-	// @Test
-	// public void testErrorHandling() throws Exception {
-	// MessagingFactory messagingFactorySpy = new MessagingFactoryErrorThrowingSpy();
-	// MessagingProvider.setMessagingFactory(messagingFactorySpy);
-	// AlvinIndexMessengerListener iml = new AlvinIndexMessengerListener(clientFactory,
-	// properties);
-	// assertEquals(loggerFactorySpy.getNoOfFatalLogMessagesUsingClassName(testedClassName), 1);
-	// Exception exception = loggerFactorySpy.getFatalLogErrorUsingClassNameAndNo(testedClassName,
-	// 0);
-	// assertTrue(exception instanceof RuntimeException);
-	// assertEquals(exception.getMessage(), "Error from MessagingFactoryErrorThrowingSpy");
-	// assertEquals(loggerFactorySpy.getFatalLogMessageUsingClassNameAndNo(testedClassName, 0),
-	// "Error during initializing of AlvinIndexMessengerListener");
-	// }
 
 	@Test
 	public void testReceiverIsIndexReceiver() throws Exception {
@@ -104,21 +73,25 @@ public class AlvinIndexMessengerListenerTest {
 
 	@Test
 	public void testCoraClientFactoryIsCalledCorrectly() throws Exception {
+		CoraClientFactorySpy coraClientFactory = (CoraClientFactorySpy) messageListener
+				.getCoraClientFactory();
 		assertTrue(coraClientFactory.factoredHasBeenCalled);
-		assertEquals(coraClientFactory.userId, "userIdForCora");
-		assertEquals(coraClientFactory.appToken, "appTokenForCora");
+		assertEquals(coraClientFactory.userId, credentials.userId);
+		assertEquals(coraClientFactory.appToken, credentials.appToken);
 	}
 
 	@Test
-	public void testReceiverContainsCoraClientFromCoraClientFactory() throws Exception {
+	public void testMessageReceiverContainsCorrectCoraClient() {
+		CoraClientFactorySpy coraClientFactory = (CoraClientFactorySpy) messageListener
+				.getCoraClientFactory();
 		IndexMessageReceiver messageReceiver = (IndexMessageReceiver) messagingFactorySpy.messageListenerSpy.messageReceiver;
 		assertSame(messageReceiver.getCoraClient(), coraClientFactory.factoredClient);
 	}
 
 	@Test
-	public void testReceiverContainsSentInMessageParserFactory() throws Exception {
+	public void testMessageParserFactoryIsSentToCoraClient() {
 		IndexMessageReceiver messageReceiver = (IndexMessageReceiver) messagingFactorySpy.messageListenerSpy.messageReceiver;
 		assertSame(messageReceiver.getMessageParserFactory(), messageParserFactory);
-
 	}
+
 }
