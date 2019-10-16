@@ -16,12 +16,15 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.indexmessenger;
+package se.uu.ub.cora.indexmessenger.alvin;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import se.uu.ub.cora.indexmessenger.CoraCredentials;
+import se.uu.ub.cora.indexmessenger.IndexMessengerListener;
+import se.uu.ub.cora.indexmessenger.MessageParserFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactoryImp;
 import se.uu.ub.cora.logger.Logger;

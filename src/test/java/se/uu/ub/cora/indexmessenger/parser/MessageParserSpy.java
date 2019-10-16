@@ -23,14 +23,14 @@ import java.util.Map;
 
 public class MessageParserSpy implements MessageParser {
 
-	public Map<String, Object> headers;
+	public Map<String, String> headers;
 	public String message;
 	public boolean getParsedIdWasCalled = false;
 	public boolean getParsedTypeWasCalled = false;
 	public boolean createWorkOrder = true;
 
 	@Override
-	public void parseHeadersAndMessage(Map<String, Object> headers, String message) {
+	public void parseHeadersAndMessage(Map<String, String> headers, String message) {
 		this.headers = headers;
 		this.message = message;
 

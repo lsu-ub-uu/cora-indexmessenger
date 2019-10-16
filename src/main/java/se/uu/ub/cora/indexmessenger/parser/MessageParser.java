@@ -23,7 +23,7 @@ import java.util.Map;
 
 public interface MessageParser {
 
-	void parseHeadersAndMessage(Map<String, Object> headers, String message);
+	void parseHeadersAndMessage(Map<String, String> headers, String message);
 
 	String getParsedId();
 

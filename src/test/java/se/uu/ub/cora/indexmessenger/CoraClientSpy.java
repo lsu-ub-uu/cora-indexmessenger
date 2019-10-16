@@ -27,6 +27,7 @@ public class CoraClientSpy implements CoraClient {
 	public boolean createWasCalled = false;
 	public String createdRecordType = "";
 	public ClientDataGroup createdDataGroup;
+	public boolean throwErrorOnCreate = false;
 
 	@Override
 	public String create(String recordType, String json) {
@@ -39,7 +40,9 @@ public class CoraClientSpy implements CoraClient {
 		createWasCalled = true;
 		createdRecordType = recordType;
 		createdDataGroup = dataGroup;
-
+		if (throwErrorOnCreate) {
+			throw new RuntimeException("Error from CoraClientSpy on create");
+		}
 		return null;
 	}
 

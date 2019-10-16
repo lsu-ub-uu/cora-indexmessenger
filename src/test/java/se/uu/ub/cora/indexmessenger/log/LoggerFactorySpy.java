@@ -51,26 +51,30 @@ public class LoggerFactorySpy implements LoggerFactory {
 		return errorMessages.get(messageNo);
 	}
 
-	public int getNoOfInfoLogMessagesUsingClassName(String testedClassName) {
-		return ((createdLoggers.get(testedClassName)).infoMessages).size();
+	public int getNoOfInfoLogMessagesUsingClassname(String testedClassname) {
+		return ((createdLoggers.get(testedClassname)).infoMessages).size();
 	}
 
-	public Object getNoOfFatalLogMessagesUsingClassName(String testedClassName) {
-		return ((createdLoggers.get(testedClassName)).fatalMessages).size();
+	public Object getNoOfFatalLogMessagesUsingClassName(String testedClassname) {
+		return ((createdLoggers.get(testedClassname)).fatalMessages).size();
 	}
 
-	public Object getNoOfErrorLogMessagesUsingClassName(String testedClassName) {
-		return ((createdLoggers.get(testedClassName)).errorMessages).size();
+	public Object getNoOfErrorLogMessagesUsingClassName(String testedClassname) {
+		return ((createdLoggers.get(testedClassname)).errorMessages).size();
 	}
 
-	public Exception getFatalLogErrorUsingClassNameAndNo(String testedClassName, int exceptionNo) {
-		return ((createdLoggers.get(testedClassName)).fatalExceptions).get(exceptionNo);
+	public Exception getFatalLogErrorUsingClassNameAndNo(String testedClassname, int exceptionNo) {
+		return ((createdLoggers.get(testedClassname)).fatalExceptions).get(exceptionNo);
 	}
 
-	public void resetLogs(String testedClassName) {
-		if (createdLoggers.containsKey(testedClassName)) {
-			LoggerSpy loggerSpy = createdLoggers.get(testedClassName);
+	public void resetLogs(String testedClassname) {
+		if (createdLoggers.containsKey(testedClassname)) {
+			LoggerSpy loggerSpy = createdLoggers.get(testedClassname);
 			loggerSpy.resetLogs();
 		}
+	}
+
+	public Exception getErrorLogErrorUsingClassNameAndNo(String testedClassname, int exceptionNo) {
+		return ((createdLoggers.get(testedClassname)).errorExceptions).get(exceptionNo);
 	}
 }

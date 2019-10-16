@@ -26,7 +26,7 @@ import se.uu.ub.cora.messaging.MessageReceiver;
 public class MessageReceiverSpy implements MessageReceiver {
 
 	@Override
-	public void receiveMessage(Map<String, Object> headers, String message) {
+	public void receiveMessage(Map<String, String> headers, String message) {
 		// TODO Auto-generated method stub
 
 	}

@@ -16,8 +16,9 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.indexmessenger;
+package se.uu.ub.cora.indexmessenger.alvin;
 
+import se.uu.ub.cora.indexmessenger.MessageParserFactory;
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
 
 public class AlvinMessageParserFactory implements MessageParserFactory {

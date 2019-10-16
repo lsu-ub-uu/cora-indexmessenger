@@ -38,7 +38,7 @@ import se.uu.ub.cora.messaging.MessageReceiver;
 
 public class IndexMessageReceiverTest {
 	private String message;
-	private Map<String, Object> headers;
+	private Map<String, String> headers;
 	private CoraClientSpy coraClientSpy;
 	private MessageReceiver receiver;
 
@@ -125,11 +125,11 @@ public class IndexMessageReceiverTest {
 
 	@Test
 	public void testLogInfoWhenWorkOrderCreated() throws Exception {
-		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassName(testedClassname), 0);
+		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassname(testedClassname), 0);
 
 		receiver.receiveMessage(headers, message);
 
-		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassName(testedClassname), 1);
+		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassname(testedClassname), 1);
 	}
 
 	@Test
@@ -141,6 +141,25 @@ public class IndexMessageReceiverTest {
 		assertEquals(firstInfoLogMessage,
 				"Index workOrder created for type: someParsedTypeFromMessageParserSpy "
 						+ "and id: someParsedIdFromMessageParserSpy");
+	}
+
+	@Test
+	public void testLogErrorWhenWorkOrderFailedToBeCreated() throws Exception {
+		coraClientSpy.throwErrorOnCreate = true;
+		assertEquals(loggerFactory.getNoOfErrorLogMessagesUsingClassName(testedClassname), 0);
+
+		receiver.receiveMessage(headers, message);
+
+		assertEquals(loggerFactory.getNoOfErrorLogMessagesUsingClassName(testedClassname), 1);
+		String firstErrorLogMessage = loggerFactory
+				.getErrorLogMessageUsingClassNameAndNo(testedClassname, 0);
+		assertEquals(firstErrorLogMessage,
+				"Index workOrder NOT created for type: someParsedTypeFromMessageParserSpy "
+						+ "and id: someParsedIdFromMessageParserSpy");
+		Exception firstErrorException = loggerFactory
+				.getErrorLogErrorUsingClassNameAndNo(testedClassname, 0);
+		assertEquals(firstErrorException.getMessage(), "Error from CoraClientSpy on create");
+		assertEquals(loggerFactory.getNoOfInfoLogMessagesUsingClassname(testedClassname), 0);
 	}
 
 	@Test

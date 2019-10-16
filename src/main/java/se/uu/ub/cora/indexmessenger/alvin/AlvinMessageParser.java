@@ -17,12 +17,13 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.indexmessenger;
+package se.uu.ub.cora.indexmessenger.alvin;
 
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import se.uu.ub.cora.indexmessenger.IndexMessageException;
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
 import se.uu.ub.cora.logger.Logger;
 import se.uu.ub.cora.logger.LoggerProvider;
@@ -34,7 +35,7 @@ public class AlvinMessageParser implements MessageParser {
 	private boolean workOrderShouldBeCreated = true;
 
 	@Override
-	public void parseHeadersAndMessage(Map<String, Object> headers, String message) {
+	public void parseHeadersAndMessage(Map<String, String> headers, String message) {
 		try {
 			tryToParseMessage(headers, message);
 		} catch (IndexMessageException e) {
@@ -42,7 +43,7 @@ public class AlvinMessageParser implements MessageParser {
 		}
 	}
 
-	private void tryToParseMessage(Map<String, Object> headers, String message) {
+	private void tryToParseMessage(Map<String, String> headers, String message) {
 		if (messageIsFromClassic(headers)) {
 			extractRecordIdFromHeaders(headers);
 			extractRecordTypeIdFromMessage(message);
@@ -51,16 +52,16 @@ public class AlvinMessageParser implements MessageParser {
 		}
 	}
 
-	private boolean messageIsFromClassic(Map<String, Object> headers) {
+	private boolean messageIsFromClassic(Map<String, String> headers) {
 		return !(headers.containsKey("messageSentFrom")
 				&& "Cora".equals(headers.get("messageSentFrom")));
 	}
 
-	private void extractRecordIdFromHeaders(Map<String, Object> headers) {
+	private void extractRecordIdFromHeaders(Map<String, String> headers) {
 		if (!headers.containsKey("PID")) {
 			throw IndexMessageException.withMessage("No pid found in header");
 		}
-		parsedRecordId = (String) headers.get("PID");
+		parsedRecordId = headers.get("PID");
 	}
 
 	private void extractRecordTypeIdFromMessage(String message) {

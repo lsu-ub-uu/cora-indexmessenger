@@ -44,7 +44,7 @@ public class IndexMessageReceiver implements MessageReceiver {
 	}
 
 	@Override
-	public void receiveMessage(Map<String, Object> headers, String message) {
+	public void receiveMessage(Map<String, String> headers, String message) {
 		MessageParser messageParser = messageParserFactory.factor();
 		messageParser.parseHeadersAndMessage(headers, message);
 		if (messageParser.shouldWorkOrderBeCreatedForMessage()) {
@@ -55,8 +55,15 @@ public class IndexMessageReceiver implements MessageReceiver {
 	private void createWorkOrder(MessageParser messageParser) {
 		Map<String, String> logValues = new HashMap<>();
 		ClientDataGroup workOrder = createWorkOrderDataGroup(messageParser, logValues);
-		coraClient.create("workOrder", workOrder);
-		writeLogMessage(logValues);
+		try {
+			coraClient.create("workOrder", workOrder);
+			writeLogMessage(logValues);
+		} catch (Exception e) {
+			String logM = "Index workOrder NOT created for type: {0} and id: {1}";
+			String formattedLogMessage = MessageFormat.format(logM, logValues.get(RECORD_TYPE),
+					logValues.get(RECORD_ID));
+			logger.logErrorUsingMessageAndException(formattedLogMessage, e);
+		}
 	}
 
 	private ClientDataGroup createWorkOrderDataGroup(MessageParser messageParser,

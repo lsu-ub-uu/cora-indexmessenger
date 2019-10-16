@@ -16,13 +16,15 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.indexmessenger;
+package se.uu.ub.cora.indexmessenger.alvin;
 
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.indexmessenger.MessageParserFactory;
+import se.uu.ub.cora.indexmessenger.alvin.AlvinMessageParser;
 import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
 import se.uu.ub.cora.logger.LoggerProvider;

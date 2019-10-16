@@ -17,7 +17,7 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.indexmessenger;
+package se.uu.ub.cora.indexmessenger.alvin;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -29,13 +29,14 @@ import java.util.Map;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.indexmessenger.alvin.AlvinMessageParser;
 import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
 import se.uu.ub.cora.logger.LoggerProvider;
 
 public class AlvinMessageParserTest {
 	private String message;
-	private Map<String, Object> headers;
+	private Map<String, String> headers;
 	private LoggerFactorySpy loggerFactory;
 	private String testedClassname = "AlvinMessageParser";
 	private MessageParser messageParser;

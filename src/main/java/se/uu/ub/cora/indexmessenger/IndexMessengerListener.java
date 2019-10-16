@@ -74,7 +74,8 @@ public class IndexMessengerListener {
 		return routingInfo;
 	}
 
-	CoraCredentials getCredentials() {
+	public CoraCredentials getCredentials() {
+		// needed for test
 		return credentials;
 	}
 }

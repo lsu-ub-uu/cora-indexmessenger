@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.indexmessenger;
+package se.uu.ub.cora.indexmessenger.alvin;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -29,6 +29,9 @@ import java.lang.reflect.Modifier;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.indexmessenger.CoraCredentials;
+import se.uu.ub.cora.indexmessenger.IndexMessengerListener;
+import se.uu.ub.cora.indexmessenger.MessagingFactorySpy;
 import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
 import se.uu.ub.cora.indexmessenger.log.LoggerSpy;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactoryImp;
