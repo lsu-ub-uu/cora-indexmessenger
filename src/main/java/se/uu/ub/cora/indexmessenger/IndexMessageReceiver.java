@@ -25,6 +25,7 @@ import java.util.Map;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
+import se.uu.ub.cora.indexmessenger.parser.MessageParserFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.logger.Logger;
 import se.uu.ub.cora.logger.LoggerProvider;

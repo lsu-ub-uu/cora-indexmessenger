@@ -19,6 +19,7 @@
 
 package se.uu.ub.cora.indexmessenger;
 
+import se.uu.ub.cora.indexmessenger.parser.MessageParserFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientFactory;
 import se.uu.ub.cora.messaging.MessageListener;

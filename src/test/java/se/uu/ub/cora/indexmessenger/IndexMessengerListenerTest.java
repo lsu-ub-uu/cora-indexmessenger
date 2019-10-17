@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.indexmessenger.log.LoggerFactorySpy;
+import se.uu.ub.cora.indexmessenger.parser.MessageParserFactory;
 import se.uu.ub.cora.logger.LoggerProvider;
 import se.uu.ub.cora.messaging.AmqpMessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageReceiver;
@@ -92,6 +93,21 @@ public class IndexMessengerListenerTest {
 	public void testMessageParserFactoryIsSentToCoraClient() {
 		IndexMessageReceiver messageReceiver = (IndexMessageReceiver) messagingFactorySpy.messageListenerSpy.messageReceiver;
 		assertSame(messageReceiver.getMessageParserFactory(), messageParserFactory);
+	}
+
+	@Test
+	public void testGetMessageParserFactory() throws Exception {
+		assertSame(messageListener.getMessageParserFactory(), messageParserFactory);
+	}
+
+	@Test
+	public void testGetMessageRoutingInfo() throws Exception {
+		assertSame(messageListener.getMessageRoutingInfo(), routingInfo);
+	}
+
+	@Test
+	public void testGetCredentials() throws Exception {
+		assertSame(messageListener.getCredentials(), credentials);
 	}
 
 }

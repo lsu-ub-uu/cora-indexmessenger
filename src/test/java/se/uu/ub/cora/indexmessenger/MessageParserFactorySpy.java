@@ -19,6 +19,7 @@
 package se.uu.ub.cora.indexmessenger;
 
 import se.uu.ub.cora.indexmessenger.parser.MessageParser;
+import se.uu.ub.cora.indexmessenger.parser.MessageParserFactory;
 import se.uu.ub.cora.indexmessenger.parser.MessageParserSpy;
 
 public class MessageParserFactorySpy implements MessageParserFactory {
