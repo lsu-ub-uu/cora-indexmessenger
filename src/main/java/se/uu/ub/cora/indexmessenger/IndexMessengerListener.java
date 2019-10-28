@@ -53,7 +53,7 @@ public class IndexMessengerListener {
 		topicMessageListener.listen(messageReceiver);
 	}
 
-	private CoraClient createCoraClient(CoraClientFactory coraClientFactory,
+	private final CoraClient createCoraClient(CoraClientFactory coraClientFactory,
 			CoraCredentials credentials) {
 		String coraUserId = credentials.userId;
 		String coraAppToken = credentials.appToken;
