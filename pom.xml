@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>0.9.0</version>
+		<version>1.0.2</version>
 	</parent>
 
 	<artifactId>indexmessenger</artifactId>
@@ -26,9 +26,9 @@
 	<name>indexmessenger</name>
 
 	<properties>
-		<logger.version>1.0.0</logger.version>
-		<messaging.version>1.1-SNAPSHOT</messaging.version>
-		<javaclient.version>1.0-SNAPSHOT</javaclient.version>
+		<logger.version>2.0.0</logger.version>
+		<messaging.version>2.1.0</messaging.version>
+		<javaclient.version>1.0.0</javaclient.version>
 	</properties>
 
 	<scm>
@@ -61,41 +61,5 @@
 			<artifactId>javaclient</artifactId>
 			<version>${javaclient.version}</version>
 		</dependency>
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.rabbitmq</groupId> -->
-<!-- 			<artifactId>amqp-client</artifactId> -->
-<!-- 			<version>5.6.0</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>com.rabbitmq.jms</groupId> -->
-<!-- 		    <artifactId>rabbitmq-jms</artifactId> -->
-<!-- 		    <version>1.13.0</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>javax.jms</groupId> -->
-<!-- 		    <artifactId>javax.jms-api</artifactId> -->
-<!-- 		    <version>2.0.1</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>org.glassfish.main.javaee-api</groupId> -->
-<!-- 		    <artifactId>javax.jms</artifactId> -->
-<!-- 		    <version>3.1.2.2</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>javax.jms</groupId> -->
-<!-- 		    <artifactId>jms</artifactId> -->
-<!-- 		    <version>1.1</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>org.apache.activemq</groupId> -->
-<!-- 		    <artifactId>activemq-client</artifactId> -->
-<!-- 		    <version>5.15.10</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>org.apache.activemq</groupId> -->
-<!-- 		    <artifactId>activemq-openwire-legacy</artifactId> -->
-<!-- 		    <version>5.9.0</version> -->
-<!-- 		</dependency> -->
 	</dependencies>
 </project>
