@@ -19,6 +19,8 @@
 
 package se.uu.ub.cora.indexmessenger;
 
+import java.util.List;
+
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
@@ -85,6 +87,30 @@ public class CoraClientSpy implements CoraClient {
 
 	@Override
 	public String update(String recordType, String recordId, ClientDataGroup dataGroup) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ClientDataRecord> readListAsDataRecords(String recordType) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String indexData(ClientDataRecord clientDataRecord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String indexData(String recordType, String recordId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String removeFromIndex(String recordType, String recordId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
