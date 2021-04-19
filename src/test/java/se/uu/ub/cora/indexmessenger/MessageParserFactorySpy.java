@@ -26,12 +26,14 @@ public class MessageParserFactorySpy implements MessageParserFactory {
 	boolean factorWasCalled = false;
 	public boolean createWorkOrder = true;
 	public MessageParserSpy messageParserSpy;
+	public String modificationType = "update";
 
 	@Override
 	public MessageParser factor() {
 		factorWasCalled = true;
 		messageParserSpy = new MessageParserSpy();
 		messageParserSpy.createWorkOrder = createWorkOrder;
+		messageParserSpy.modificationType = modificationType;
 		return messageParserSpy;
 	}
 

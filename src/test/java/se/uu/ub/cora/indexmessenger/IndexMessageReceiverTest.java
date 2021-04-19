@@ -96,7 +96,7 @@ public class IndexMessageReceiverTest {
 		ClientDataGroup createdDataGroup = coraClientSpy.createdDataGroup;
 		String recordIdFromWorkOrder = createdDataGroup
 				.getFirstAtomicValueWithNameInData("recordId");
-		assertEquals(recordIdFromWorkOrder, messageParserSpy.getParsedId());
+		assertEquals(recordIdFromWorkOrder, messageParserSpy.getRecordId());
 	}
 
 	@Test
@@ -111,7 +111,32 @@ public class IndexMessageReceiverTest {
 				.getFirstGroupWithNameInData("recordType");
 		String recordTypeFromWorkOrder = recordTypeGroup
 				.getFirstAtomicValueWithNameInData("linkedRecordId");
-		assertEquals(recordTypeFromWorkOrder, messageParserSpy.getParsedType());
+		assertEquals(recordTypeFromWorkOrder, messageParserSpy.getRecordType());
+	}
+
+	@Test
+	public void testCorrectWorkOrderTypeWhenModificationTypeUpdate() throws Exception {
+		receiver.receiveMessage(headers, message);
+
+		MessageParserSpy messageParserSpy = messageParserFactorySpy.messageParserSpy;
+		assertTrue(messageParserSpy.getMoficationTypeWasCalled);
+
+		ClientDataGroup createdDataGroup = coraClientSpy.createdDataGroup;
+		String indexType = createdDataGroup.getFirstAtomicValueWithNameInData("type");
+		assertEquals(indexType, "index");
+	}
+
+	@Test
+	public void testCorrectWorkOrderTypeWhenModificationTypeDelete() throws Exception {
+		messageParserFactorySpy.modificationType = "delete";
+		receiver.receiveMessage(headers, message);
+
+		MessageParserSpy messageParserSpy = messageParserFactorySpy.messageParserSpy;
+		assertTrue(messageParserSpy.getMoficationTypeWasCalled);
+
+		ClientDataGroup createdDataGroup = coraClientSpy.createdDataGroup;
+		String indexType = createdDataGroup.getFirstAtomicValueWithNameInData("type");
+		assertEquals(indexType, "removeFromIndex");
 	}
 
 	@Test
