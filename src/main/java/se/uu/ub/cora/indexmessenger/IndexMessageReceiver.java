@@ -69,28 +69,29 @@ public class IndexMessageReceiver implements MessageReceiver {
 
 	private ClientDataGroup createWorkOrderDataGroup(MessageParser messageParser,
 			Map<String, String> logValues) {
-		ClientDataGroup workOrder = createIndexWorkOrder();
+		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
 		addRecordType(messageParser, workOrder, logValues);
 		addRecordId(messageParser, workOrder, logValues);
+		addWorkOrderType(messageParser, workOrder);
 		return workOrder;
 	}
 
-	private ClientDataGroup createIndexWorkOrder() {
-		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
-		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "index"));
-		return workOrder;
+	private void addWorkOrderType(MessageParser messageParser, ClientDataGroup workOrder) {
+		String modificationType = messageParser.getModificationType();
+		String workOrderType = "delete".equals(modificationType) ? "removeFromIndex" : "index";
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", workOrderType));
 	}
 
 	private void addRecordId(MessageParser messageParser, ClientDataGroup workOrder,
 			Map<String, String> logValues) {
-		String parsedId = messageParser.getParsedId();
+		String parsedId = messageParser.getRecordId();
 		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue(RECORD_ID, parsedId));
 		logValues.put(RECORD_ID, parsedId);
 	}
 
 	private void addRecordType(MessageParser messageParser, ClientDataGroup workOrder,
 			Map<String, String> logValues) {
-		String parsedType = messageParser.getParsedType();
+		String parsedType = messageParser.getRecordType();
 		ClientDataGroup recordTypeGroup = ClientDataGroup
 				.asLinkWithNameInDataAndTypeAndId(RECORD_TYPE, RECORD_TYPE, parsedType);
 		workOrder.addChild(recordTypeGroup);

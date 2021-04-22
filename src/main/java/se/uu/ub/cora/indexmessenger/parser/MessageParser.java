@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Uppsala University Library
+ * Copyright 2019, 2021 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -25,10 +25,17 @@ public interface MessageParser {
 
 	void parseHeadersAndMessage(Map<String, String> headers, String message);
 
-	String getParsedId();
+	String getRecordId();
 
-	String getParsedType();
+	String getRecordType();
 
 	boolean shouldWorkOrderBeCreatedForMessage();
+
+	/**
+	 * getModificationType() returns the type of modification that caused the message to be sent.
+	 * 
+	 * @return a String, the modification type that caused the message.
+	 */
+	String getModificationType();
 
 }
