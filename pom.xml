@@ -28,7 +28,7 @@
 	<properties>
 		<logger.version>2.4.0</logger.version>
 		<messaging.version>2.5.0</messaging.version>
-		<javaclient.version>1.11.0</javaclient.version>
+		<javaclient.version>1.12.0</javaclient.version>
 	</properties>
 
 	<scm>
