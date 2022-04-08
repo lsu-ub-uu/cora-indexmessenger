@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>1.4.4</version>
+		<version>2.0.0</version>
 	</parent>
 
 	<artifactId>indexmessenger</artifactId>
@@ -26,9 +26,9 @@
 	<name>indexmessenger</name>
 
 	<properties>
-		<logger.version>2.4.0</logger.version>
-		<messaging.version>2.5.0</messaging.version>
-		<javaclient.version>1.13.0</javaclient.version>
+		<logger.version>2.5.0</logger.version>
+		<messaging.version>2.6.0</messaging.version>
+		<javaclient.version>1.15.0</javaclient.version>
 	</properties>
 
 	<scm>
